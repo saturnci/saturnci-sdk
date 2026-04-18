@@ -1,0 +1,13 @@
+AllCops:
+  NewCops: enable
+  SuggestExtensions: false
+
+Style/Documentation:
+  Enabled: false
+
+Naming/FileName:
+  Exclude:
+    - 'lib/saturnci-sdk.rb'
+
+Gemspec/DevelopmentDependencies:
+  Enabled: false

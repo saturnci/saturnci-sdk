@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module SaturnCI
   class Client
     def initialize(user_id: nil, api_token: nil)
@@ -6,10 +8,10 @@ module SaturnCI
     end
 
     def authenticated?
-      if @user_id.nil? || @api_token.nil?
-        puts "Credentials not found"
-        return false
-      end
+      return false unless @user_id.nil? || @api_token.nil?
+
+      puts 'Credentials not found'
+      false
     end
   end
 end
