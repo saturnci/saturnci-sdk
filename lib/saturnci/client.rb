@@ -14,10 +14,7 @@ module SaturnCI
     end
 
     def authenticated?
-      if @user_id.nil? || @api_token.nil?
-        puts 'Credentials not found'
-        return false
-      end
+      return false if @user_id.nil? || @api_token.nil?
 
       uri = URI("#{@base_url}#{AUTHENTICATION_CHECK_PATH}")
       req = Net::HTTP::Get.new(uri)

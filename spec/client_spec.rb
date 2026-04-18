@@ -19,11 +19,8 @@ describe SaturnCI::Client do
     context 'when credentials are missing' do
       let(:client) { SaturnCI::Client.new(user_id: nil, api_token: nil) }
 
-      it 'returns false and outputs a credentials not found message' do
-        expect { @result = client.authenticated? }
-          .to output(/Credentials not found/).to_stdout
-
-        expect(@result).to be false
+      it 'returns false' do
+        expect(client.authenticated?).to be false
       end
     end
   end
