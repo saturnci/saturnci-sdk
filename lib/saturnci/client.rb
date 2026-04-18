@@ -16,6 +16,12 @@ module SaturnCI
     def authenticated?
       return false if @user_id.nil? || @api_token.nil?
 
+      api_reachable?
+    end
+
+    private
+
+    def api_reachable?
       uri = URI("#{@base_url}#{AUTHENTICATION_CHECK_PATH}")
       req = Net::HTTP::Get.new(uri)
       req.basic_auth(@user_id, @api_token)
