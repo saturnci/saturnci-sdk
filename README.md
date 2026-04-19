@@ -34,7 +34,42 @@ credentials = SaturnCI::Credentials.new(user_id: 'your_user_id', api_token: 'you
 client = SaturnCI::Client.new(credentials)
 ```
 
-### Triggering a deploy
+### Running tests
+
+```ruby
+client = SaturnCI::Client.new
+
+test_suite_run = SaturnCI::TestSuiteRun.create(
+  client: client,
+  repository: 'your-org/your-repo',
+  branch_name: 'main',
+  commit_hash: `git rev-parse HEAD`.strip,
+  commit_message: `git log -1 --format=%s`.strip,
+  author_name: `git log -1 --format=%an`.strip
+)
+
+puts "Testing: #{test_suite_run.url}"
+test_suite_run.wait_for_completion
+puts "Status: #{test_suite_run.status}"
+```
+
+### Building a Docker image
+
+```ruby
+client = SaturnCI::Client.new
+
+build = SaturnCI::Build.create(
+  client: client,
+  repository: 'your-org/your-repo',
+  name: 'production'
+)
+
+puts "Building: #{build.url}"
+build.wait_for_completion
+puts "Image: #{build.container_image_url}"
+```
+
+### Running a job
 
 ```ruby
 client = SaturnCI::Client.new
@@ -46,5 +81,39 @@ job = SaturnCI::Job.create(
   container_image_url: 'your-registry/your-image:tag'
 )
 
-puts "Job created: #{job.id}"
+puts "Running: #{job.url}"
+job.wait_for_completion
+puts "Status: #{job.status}"
+```
+
+### Test, build, and deploy
+
+```ruby
+client = SaturnCI::Client.new
+repository = 'your-org/your-repo'
+
+# Test
+test_suite_run = SaturnCI::TestSuiteRun.create(
+  client: client,
+  repository: repository,
+  branch_name: `git rev-parse --abbrev-ref HEAD`.strip,
+  commit_hash: `git rev-parse HEAD`.strip,
+  commit_message: `git log -1 --format=%s`.strip,
+  author_name: `git log -1 --format=%an`.strip
+)
+puts "Testing: #{test_suite_run.url}"
+test_suite_run.wait_for_completion
+abort "Tests failed!" unless test_suite_run.status == "Passed"
+
+# Build
+build = SaturnCI::Build.create(client: client, repository: repository, name: 'production')
+puts "Building: #{build.url}"
+build.wait_for_completion
+puts "Image: #{build.container_image_url}"
+
+# Deploy
+job = SaturnCI::Job.create(client: client, repository: repository, name: 'deploy', container_image_url: build.container_image_url)
+puts "Deploying: #{job.url}"
+job.wait_for_completion
+puts "Deploy complete!"
 ```
