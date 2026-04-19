@@ -71,6 +71,8 @@ puts "Image: #{build.container_image_url}"
 
 ### Running a job
 
+A job must be [defined](https://www.saturnci.com/jobs.html) before it can be created.
+
 ```ruby
 client = SaturnCI::Client.new
 
