@@ -11,3 +11,7 @@ Naming/FileName:
 
 Gemspec/DevelopmentDependencies:
   Enabled: false
+
+Metrics/BlockLength:
+  Exclude:
+    - 'spec/**/*'
