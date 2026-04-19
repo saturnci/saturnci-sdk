@@ -30,4 +30,22 @@ describe SaturnCI::Job do
       expect(job.id).to eq('abc123')
     end
   end
+
+  describe '#wait' do
+    it 'polls until the job is finished and returns the response' do
+      running_response = double(body: '{"status": "Running"}')
+      finished_response = double(body: '{"status": "Passed"}')
+      client = double
+      allow(client).to receive(:get).and_return(running_response, finished_response)
+
+      job = SaturnCI::Job.new(id: 'abc123', client: client)
+      allow(job).to receive(:sleep)
+
+      expect(job.status).to be_nil
+
+      job.wait
+
+      expect(job.status).to eq('Passed')
+    end
+  end
 end
