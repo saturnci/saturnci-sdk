@@ -10,8 +10,8 @@ module SaturnCI
       @id = id
     end
 
-    def self.create(client:, repository:, name:)
-      response = client.post('/api/v1/jobs', repository: repository, job_name: name)
+    def self.create(client:, repository:, name:, **params)
+      response = client.post('/api/v1/jobs', { repository: repository, job_name: name }.merge(params))
       body = JSON.parse(response.body)
       new(id: body['id'])
     end
