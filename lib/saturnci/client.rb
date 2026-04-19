@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'json'
 require 'net/http'
 require 'uri'
 
@@ -16,17 +17,25 @@ module SaturnCI
     def authenticated?
       return false if @user_id.nil? || @api_token.nil?
 
-      api_reachable?
+      get(AUTHENTICATION_CHECK_PATH).is_a?(Net::HTTPSuccess)
+    end
+
+    def get(path)
+      request(Net::HTTP::Get, path)
+    end
+
+    def post(path, params = {})
+      request(Net::HTTP::Post, path, params)
     end
 
     private
 
-    def api_reachable?
-      uri = URI("#{@base_url}#{AUTHENTICATION_CHECK_PATH}")
-      req = Net::HTTP::Get.new(uri)
+    def request(method_class, path, params = nil)
+      uri = URI("#{@base_url}#{path}")
+      req = method_class.new(uri)
       req.basic_auth(@user_id, @api_token)
-      response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') { |http| http.request(req) }
-      response.is_a?(Net::HTTPSuccess)
+      req.set_form_data(params) if params
+      Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') { |http| http.request(req) }
     end
   end
 end
