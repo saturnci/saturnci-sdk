@@ -6,17 +6,18 @@ module SaturnCI
   class Build
     TERMINAL_STATUSES = %w[Passed Failed Cancelled].freeze
 
-    attr_reader :id, :container_image_url
+    attr_reader :id, :url, :container_image_url
 
-    def initialize(id:, client:)
+    def initialize(id:, client:, url: nil)
       @id = id
       @client = client
+      @url = url
     end
 
     def self.create(client:, repository:, name:, **params)
       response = client.post('/api/v1/builds', { repository: repository, build_name: name }.merge(params))
       body = JSON.parse(response.body)
-      new(id: body['id'], client: client)
+      new(id: body['id'], client: client, url: body['url'])
     end
 
     def wait

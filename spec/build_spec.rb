@@ -2,11 +2,12 @@
 
 require 'saturnci-sdk'
 require 'webmock/rspec'
+require 'spec_helper'
 
 describe SaturnCI::Build do
   describe '.create' do
     it 'posts to the builds endpoint and returns a build with an id' do
-      client = SaturnCI::Client.new(double(user_id: 'x', api_token: 'x'))
+      client = SaturnCI::Client.new(TestHelpers.credentials)
 
       stub_request(:post, 'https://app.saturnci.com/api/v1/builds')
         .to_return(status: 201, body: '{"id": "abc123"}')
@@ -19,7 +20,7 @@ describe SaturnCI::Build do
 
   describe '#wait' do
     it 'polls until the build is finished and returns the response' do
-      client = SaturnCI::Client.new(double(user_id: 'x', api_token: 'x'))
+      client = SaturnCI::Client.new(TestHelpers.credentials)
 
       stub_request(:post, 'https://app.saturnci.com/api/v1/builds')
         .to_return(status: 201, body: '{"id": "abc123"}')
@@ -49,6 +50,18 @@ describe SaturnCI::Build do
       build.wait
 
       expect(build.container_image_url).to eq('registry.example.com/image:latest')
+    end
+  end
+
+  describe '#url' do
+    it 'populates url from the API response' do
+      stub_request(:post, 'https://app.saturnci.com/api/v1/builds')
+        .to_return(status: 201, body: '{"id": "abc123", "url": "https://app.saturnci.com/builds/abc123"}')
+
+      client = SaturnCI::Client.new(TestHelpers.credentials)
+      build = SaturnCI::Build.create(client: client, repository: 'saturnci/saturnci', name: 'production')
+
+      expect(build.url).to eq('https://app.saturnci.com/builds/abc123')
     end
   end
 end
