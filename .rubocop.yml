@@ -15,3 +15,6 @@ Gemspec/DevelopmentDependencies:
 Metrics/BlockLength:
   Exclude:
     - 'spec/**/*'
+
+Metrics/ParameterLists:
+  Max: 7
