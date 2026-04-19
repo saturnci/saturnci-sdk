@@ -14,6 +14,10 @@ Or add to your Gemfile:
 gem 'saturnci-sdk'
 ```
 
+## Authentication
+
+See [API Authentication](https://www.saturnci.com/api-authentication.html) for instructions on setting up your credentials.
+
 ## Usage
 
 ```ruby
