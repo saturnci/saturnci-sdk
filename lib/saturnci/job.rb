@@ -19,7 +19,7 @@ module SaturnCI
       new(id: body['id'], client: client)
     end
 
-    def wait
+    def wait_for_completion
       loop do
         response = JSON.parse(@client.get("/api/v1/jobs/#{@id}").body)
         if TERMINAL_STATUSES.include?(response['status'])

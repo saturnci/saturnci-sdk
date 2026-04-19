@@ -31,7 +31,7 @@ describe SaturnCI::Job do
     end
   end
 
-  describe '#wait' do
+  describe '#wait_for_completion' do
     it 'polls until the job is finished and returns the response' do
       running_response = double(body: '{"status": "Running"}')
       finished_response = double(body: '{"status": "Passed"}')
@@ -43,7 +43,7 @@ describe SaturnCI::Job do
 
       expect(job.status).to be_nil
 
-      job.wait
+      job.wait_for_completion
 
       expect(job.status).to eq('Passed')
     end

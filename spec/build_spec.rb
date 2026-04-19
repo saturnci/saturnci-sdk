@@ -18,7 +18,7 @@ describe SaturnCI::Build do
     end
   end
 
-  describe '#wait' do
+  describe '#wait_for_completion' do
     it 'polls until the build is finished and returns the response' do
       client = SaturnCI::Client.new(TestHelpers.credentials)
 
@@ -34,7 +34,7 @@ describe SaturnCI::Build do
 
       build = SaturnCI::Build.create(client: client, repository: 'saturnci/saturnci', name: 'production')
       allow(build).to receive(:sleep)
-      response = build.wait
+      response = build.wait_for_completion
 
       expect(response['status']).to eq('Passed')
     end
@@ -47,7 +47,7 @@ describe SaturnCI::Build do
 
       expect(build.container_image_url).to be_nil
 
-      build.wait
+      build.wait_for_completion
 
       expect(build.container_image_url).to eq('registry.example.com/image:latest')
     end
