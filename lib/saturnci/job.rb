@@ -10,9 +10,7 @@ module SaturnCI
       @id = id
     end
 
-    def self.create(repository:, name:)
-      config = SaturnCI.configuration
-      client = Client.new(user_id: config.user_id, api_token: config.api_token, base_url: config.base_url)
+    def self.create(client:, repository:, name:)
       response = client.post('/api/v1/jobs', repository: repository, job_name: name)
       body = JSON.parse(response.body)
       new(id: body['id'])
