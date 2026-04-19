@@ -6,7 +6,7 @@ require 'webmock/rspec'
 describe SaturnCI::Job do
   describe '.create' do
     it 'posts to the jobs endpoint and returns a job with an id' do
-      client = SaturnCI::Client.new(user_id: 'test_user', api_token: 'test_token')
+      client = SaturnCI::Client.new(double(user_id: 'x', api_token: 'x'))
 
       stub_request(:post, 'https://app.saturnci.com/api/v1/jobs')
         .to_return(status: 201, body: '{"id": "abc123"}')
@@ -17,7 +17,7 @@ describe SaturnCI::Job do
     end
 
     it 'passes additional params to the API' do
-      client = SaturnCI::Client.new(user_id: 'test_user', api_token: 'test_token')
+      client = SaturnCI::Client.new(double(user_id: 'x', api_token: 'x'))
 
       stub_request(:post, 'https://app.saturnci.com/api/v1/jobs')
         .with(body: { repository: 'saturnci/saturnci', job_name: 'deploy',
