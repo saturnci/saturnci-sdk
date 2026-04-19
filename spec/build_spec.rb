@@ -16,4 +16,25 @@ describe SaturnCI::Build do
       expect(build.id).to eq('abc123')
     end
   end
+
+  describe '#wait' do
+    it 'polls until the build is finished and returns the response' do
+      client = SaturnCI::Client.new(double(user_id: 'x', api_token: 'x'))
+
+      stub_request(:post, 'https://app.saturnci.com/api/v1/builds')
+        .to_return(status: 201, body: '{"id": "abc123"}')
+
+      stub_request(:get, 'https://app.saturnci.com/api/v1/builds/abc123')
+        .to_return(
+          { status: 200, body: '{"id": "abc123", "status": "Running"}' },
+          { status: 200, body: '{"id": "abc123", "status": "Finished"}' }
+        )
+
+      build = SaturnCI::Build.create(client: client, repository: 'saturnci/saturnci', name: 'production')
+      allow(build).to receive(:sleep)
+      response = build.wait
+
+      expect(response['status']).to eq('Finished')
+    end
+  end
 end
