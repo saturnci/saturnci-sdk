@@ -6,7 +6,7 @@ module SaturnCI
   class Build
     TERMINAL_STATUSES = %w[Passed Failed Cancelled].freeze
 
-    attr_reader :id
+    attr_reader :id, :container_image_url
 
     def initialize(id:, client:)
       @id = id
@@ -22,7 +22,10 @@ module SaturnCI
     def wait
       loop do
         response = JSON.parse(@client.get("/api/v1/builds/#{@id}").body)
-        return response if TERMINAL_STATUSES.include?(response['status'])
+        if TERMINAL_STATUSES.include?(response['status'])
+          @container_image_url = response['container_image_url']
+          return response
+        end
 
         sleep 5
       end

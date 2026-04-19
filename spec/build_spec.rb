@@ -37,5 +37,18 @@ describe SaturnCI::Build do
 
       expect(response['status']).to eq('Passed')
     end
+
+    it 'populates container_image_url after finishing' do
+      response = double(body: '{"status": "Passed", "container_image_url": "registry.example.com/image:latest"}')
+      client = double(get: response)
+
+      build = SaturnCI::Build.new(id: 'abc123', client: client)
+
+      expect(build.container_image_url).to be_nil
+
+      build.wait
+
+      expect(build.container_image_url).to eq('registry.example.com/image:latest')
+    end
   end
 end
