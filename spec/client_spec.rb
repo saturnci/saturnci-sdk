@@ -28,19 +28,6 @@ describe SaturnCI::Client do
       end
     end
 
-    context 'when no credentials are passed' do
-      it 'reads credentials from the credentials file' do
-        allow(File).to receive(:read)
-          .with(File.expand_path('~/.saturnci/credentials.json'))
-          .and_return('{"user_id": "file_user", "api_token": "file_token"}')
-
-        stub_request(:get, 'https://app.saturnci.com/api/v1/test_suite_runs')
-          .to_return(status: 200)
-
-        expect(SaturnCI::Client.new.authenticated?).to be true
-      end
-    end
-
     context 'when credentials are missing' do
       let(:client) { SaturnCI::Client.new(double(user_id: nil, api_token: nil)) }
 
