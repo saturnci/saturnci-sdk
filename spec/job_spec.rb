@@ -2,6 +2,7 @@
 
 require 'saturnci-sdk'
 require 'webmock/rspec'
+require 'spec_helper'
 
 describe SaturnCI::Job do
   describe '.create' do
@@ -46,6 +47,18 @@ describe SaturnCI::Job do
       job.wait_for_completion
 
       expect(job.status).to eq('Passed')
+    end
+  end
+
+  describe '#url' do
+    it 'populates url from the API response' do
+      stub_request(:post, 'https://app.saturnci.com/api/v1/jobs')
+        .to_return(status: 201, body: '{"id": "abc123", "url": "https://app.saturnci.com/jobs/abc123"}')
+
+      client = SaturnCI::Client.new(TestHelpers.credentials)
+      job = SaturnCI::Job.create(client: client, repository: 'saturnci/saturnci', name: 'deploy')
+
+      expect(job.url).to eq('https://app.saturnci.com/jobs/abc123')
     end
   end
 end
