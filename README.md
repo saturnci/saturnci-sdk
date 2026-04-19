@@ -14,10 +14,6 @@ Or add to your Gemfile:
 gem 'saturnci-sdk'
 ```
 
-## Authentication
-
-See [API Authentication](https://www.saturnci.com/api-authentication.html) for instructions on setting up your credentials.
-
 ## Usage
 
 ```ruby
@@ -27,7 +23,7 @@ client = SaturnCI::Client.new
 client.authenticated?
 ```
 
-Credentials are read automatically from `~/.saturnci/credentials.json`. You can also pass them explicitly:
+Credentials are read automatically from `~/.saturnci/credentials.json` (see [API Authentication](https://www.saturnci.com/api-authentication.html) for setup instructions). You can also pass them explicitly:
 
 ```ruby
 credentials = SaturnCI::Credentials.new(user_id: 'your_user_id', api_token: 'your_api_token')
