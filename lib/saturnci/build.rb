@@ -4,7 +4,7 @@ require 'json'
 
 module SaturnCI
   class Build
-    ACTIVE_STATUSES = ['Running', 'Queued', 'Not Started'].freeze
+    TERMINAL_STATUSES = %w[Passed Failed Cancelled].freeze
 
     attr_reader :id
 
@@ -22,7 +22,7 @@ module SaturnCI
     def wait
       loop do
         response = JSON.parse(@client.get("/api/v1/builds/#{@id}").body)
-        return response unless ACTIVE_STATUSES.include?(response['status'])
+        return response if TERMINAL_STATUSES.include?(response['status'])
 
         sleep 5
       end

@@ -26,15 +26,16 @@ describe SaturnCI::Build do
 
       stub_request(:get, 'https://app.saturnci.com/api/v1/builds/abc123')
         .to_return(
+          { status: 200, body: '{"id": "abc123", "status": null}' },
           { status: 200, body: '{"id": "abc123", "status": "Running"}' },
-          { status: 200, body: '{"id": "abc123", "status": "Finished"}' }
+          { status: 200, body: '{"id": "abc123", "status": "Passed"}' }
         )
 
       build = SaturnCI::Build.create(client: client, repository: 'saturnci/saturnci', name: 'production')
       allow(build).to receive(:sleep)
       response = build.wait
 
-      expect(response['status']).to eq('Finished')
+      expect(response['status']).to eq('Passed')
     end
   end
 end
