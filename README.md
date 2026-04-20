@@ -72,16 +72,16 @@ A job must be [defined](https://www.saturnci.com/jobs.html) before it can be cre
 ```ruby
 client = SaturnCI::Client.new
 
-job = SaturnCI::Job.create(
+job_run = SaturnCI::JobRun.create(
   client: client,
   repository: 'your-org/your-repo',
   name: 'deploy',
   container_image_url: 'your-registry/your-image:tag'
 )
 
-puts "Running: #{job.url}"
-job.wait_for_completion
-puts "Status: #{job.status}"
+puts "Running: #{job_run.url}"
+job_run.wait_for_completion
+puts "Status: #{job_run.status}"
 ```
 
 ### Test, build, and deploy
@@ -110,8 +110,8 @@ build.wait_for_completion
 puts "Image: #{build.container_image_url}"
 
 # Deploy
-job = SaturnCI::Job.create(client: client, repository: repository, name: 'deploy', container_image_url: build.container_image_url)
-puts "Deploying: #{job.url}"
-job.wait_for_completion
+job_run = SaturnCI::JobRun.create(client: client, repository: repository, name: 'deploy', container_image_url: build.container_image_url)
+puts "Deploying: #{job_run.url}"
+job_run.wait_for_completion
 puts "Deploy complete!"
 ```
