@@ -3,5 +3,5 @@
 require_relative 'saturnci/credentials'
 require_relative 'saturnci/client'
 require_relative 'saturnci/build'
-require_relative 'saturnci/job'
+require_relative 'saturnci/job_run'
 require_relative 'saturnci/test_suite_run'
