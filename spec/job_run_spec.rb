@@ -12,7 +12,7 @@ describe SaturnCI::JobRun do
       stub_request(:post, 'https://app.saturnci.com/api/v1/job_runs')
         .to_return(status: 201, body: '{"id": "abc123"}')
 
-      job_run = SaturnCI::JobRun.create(client: client, repository: 'saturnci/saturnci', name: 'deploy')
+      job_run = SaturnCI::JobRun.create(client: client, repository: 'saturnci/saturnci', job_name: 'deploy')
 
       expect(job_run.id).to eq('abc123')
     end
@@ -25,7 +25,7 @@ describe SaturnCI::JobRun do
                       container_image_url: 'some-image:latest' })
         .to_return(status: 201, body: '{"id": "abc123"}')
 
-      job_run = SaturnCI::JobRun.create(client: client, repository: 'saturnci/saturnci', name: 'deploy',
+      job_run = SaturnCI::JobRun.create(client: client, repository: 'saturnci/saturnci', job_name: 'deploy',
                                         container_image_url: 'some-image:latest')
 
       expect(job_run.id).to eq('abc123')
@@ -56,7 +56,7 @@ describe SaturnCI::JobRun do
         .to_return(status: 201, body: '{"id": "abc123", "url": "https://app.saturnci.com/jobs/abc123"}')
 
       client = SaturnCI::Client.new(TestHelpers.credentials)
-      job_run = SaturnCI::JobRun.create(client: client, repository: 'saturnci/saturnci', name: 'deploy')
+      job_run = SaturnCI::JobRun.create(client: client, repository: 'saturnci/saturnci', job_name: 'deploy')
 
       expect(job_run.url).to eq('https://app.saturnci.com/jobs/abc123')
     end

@@ -75,7 +75,7 @@ client = SaturnCI::Client.new
 job_run = SaturnCI::JobRun.create(
   client: client,
   repository: 'your-org/your-repo',
-  name: 'deploy',
+  job_name: 'deploy',
   container_image_url: 'your-registry/your-image:tag'
 )
 
@@ -110,7 +110,7 @@ build.wait_for_completion
 puts "Image: #{build.container_image_url}"
 
 # Deploy
-job_run = SaturnCI::JobRun.create(client: client, repository: repository, name: 'deploy', container_image_url: build.container_image_url)
+job_run = SaturnCI::JobRun.create(client: client, repository: repository, job_name: 'deploy', container_image_url: build.container_image_url)
 puts "Deploying: #{job_run.url}"
 job_run.wait_for_completion
 puts "Deploy complete!"
