@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
+require_relative 'lib/saturnci/version'
+
 Gem::Specification.new do |spec|
   spec.name = 'saturnci-sdk'
-  spec.version = '0.1.0'
+  spec.version = SaturnCI::VERSION
   spec.authors = ['Jason Swett']
   spec.summary = 'Ruby SDK for the SaturnCI API'
   spec.homepage = 'https://github.com/saturnci/saturnci-sdk'
