@@ -14,6 +14,11 @@ module SaturnCI
       @url = url
     end
 
+    def self.where(client:, commit_hash:)
+      response = client.get("/api/v1/test_suite_runs?commit_hash=#{commit_hash}")
+      JSON.parse(response.body).map { |test_suite_run| new(id: test_suite_run['id'], client: client) }
+    end
+
     def self.create(client:, repository:, branch_name:, commit_hash:, commit_message:, author_name:)
       response = client.post('/api/v1/test_suite_runs', {
                                repository: repository,

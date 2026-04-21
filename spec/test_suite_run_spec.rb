@@ -23,4 +23,22 @@ describe SaturnCI::TestSuiteRun do
       expect(test_suite_run.id).to eq('abc123')
     end
   end
+
+  describe '.where' do
+    it 'returns test suite runs matching the given commit hash' do
+      client = SaturnCI::Client.new(double(user_id: 'x', api_token: 'x'))
+
+      body = '[{"id": "6a40fec7-b72c-45e0-87b5-4b5eb8a4567d"},' \
+             '{"id": "7882258e-5cb8-413a-ac07-e9eb350786d4"}]'
+      stub_request(:get, 'https://app.saturnci.com/api/v1/test_suite_runs?commit_hash=abc1234')
+        .to_return(status: 200, body: body)
+
+      test_suite_runs = SaturnCI::TestSuiteRun.where(client: client, commit_hash: 'abc1234')
+
+      expect(test_suite_runs.map(&:id)).to eq(%w[
+                                                6a40fec7-b72c-45e0-87b5-4b5eb8a4567d
+                                                7882258e-5cb8-413a-ac07-e9eb350786d4
+                                              ])
+    end
+  end
 end
