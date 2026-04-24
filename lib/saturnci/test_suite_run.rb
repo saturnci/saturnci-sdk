@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'json'
+require 'uri'
 
 module SaturnCI
   class TestSuiteRun
@@ -15,7 +16,8 @@ module SaturnCI
     end
 
     def self.list(client:, commit_hash:)
-      response = client.get("/api/v1/test_suite_runs?commit_hash=#{commit_hash}")
+      query = URI.encode_www_form(commit_hash: commit_hash)
+      response = client.get("/api/v1/test_suite_runs?#{query}")
       JSON.parse(response.body).map { |test_suite_run| new(id: test_suite_run['id'], client: client) }
     end
 
