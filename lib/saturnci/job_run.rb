@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'json'
+require 'uri'
 
 module SaturnCI
   class JobRun
@@ -15,7 +16,8 @@ module SaturnCI
     end
 
     def self.list(client:, job_name:)
-      response = client.get("/api/v1/job_runs?job_name=#{job_name}")
+      query = URI.encode_www_form(job_name: job_name)
+      response = client.get("/api/v1/job_runs?#{query}")
       JSON.parse(response.body).map { |job_run| new(id: job_run['id'], client: client) }
     end
 
