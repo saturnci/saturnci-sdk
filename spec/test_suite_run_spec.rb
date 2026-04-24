@@ -24,7 +24,7 @@ describe SaturnCI::TestSuiteRun do
     end
   end
 
-  describe '.where' do
+  describe '.list' do
     it 'returns test suite runs matching the given commit hash' do
       client = SaturnCI::Client.new(double(user_id: 'x', api_token: 'x'))
 
@@ -33,7 +33,7 @@ describe SaturnCI::TestSuiteRun do
       stub_request(:get, 'https://app.saturnci.com/api/v1/test_suite_runs?commit_hash=abc1234')
         .to_return(status: 200, body: body)
 
-      test_suite_runs = SaturnCI::TestSuiteRun.where(client: client, commit_hash: 'abc1234')
+      test_suite_runs = SaturnCI::TestSuiteRun.list(client: client, commit_hash: 'abc1234')
 
       expect(test_suite_runs.map(&:id)).to eq(%w[
                                                 6a40fec7-b72c-45e0-87b5-4b5eb8a4567d
