@@ -15,8 +15,10 @@ module SaturnCI
       @url = url
     end
 
-    def self.list(client:, job_name:)
-      query = URI.encode_www_form(job_name: job_name)
+    def self.list(client:, job_name:, status: nil)
+      params = { job_name: job_name }
+      params[:status] = status if status
+      query = URI.encode_www_form(params)
       response = client.get("/api/v1/job_runs?#{query}")
       JSON.parse(response.body).map { |job_run| new(id: job_run['id'], client: client) }
     end
