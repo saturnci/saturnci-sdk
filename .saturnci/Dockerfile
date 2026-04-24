@@ -8,7 +8,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 COPY Gemfile Gemfile.lock saturnci-sdk.gemspec ./
-COPY lib/saturnci/sdk/version.rb lib/saturnci/sdk/version.rb
+COPY lib/saturnci/version.rb lib/saturnci/version.rb
 RUN bundle install && rm -rf /usr/local/bundle/cache/*
 
 COPY . .
