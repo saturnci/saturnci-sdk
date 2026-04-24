@@ -32,6 +32,37 @@ describe SaturnCI::JobRun do
     end
   end
 
+  describe '.list' do
+    it 'returns job runs matching the given job_name' do
+      client = SaturnCI::Client.new(double(user_id: 'x', api_token: 'x'))
+
+      body = '[{"id": "6a40fec7-b72c-45e0-87b5-4b5eb8a4567d"},' \
+             '{"id": "7882258e-5cb8-413a-ac07-e9eb350786d4"}]'
+      stub_request(:get, 'https://app.saturnci.com/api/v1/job_runs?job_name=deploy')
+        .to_return(status: 200, body: body)
+
+      job_runs = SaturnCI::JobRun.list(client: client, job_name: 'deploy')
+
+      expect(job_runs.map(&:id)).to eq(%w[
+                                         6a40fec7-b72c-45e0-87b5-4b5eb8a4567d
+                                         7882258e-5cb8-413a-ac07-e9eb350786d4
+                                       ])
+    end
+
+    it 'does not return job runs with a non-matching job_name' do
+      client = SaturnCI::Client.new(double(user_id: 'x', api_token: 'x'))
+
+      stub_request(:get, 'https://app.saturnci.com/api/v1/job_runs?job_name=deploy')
+        .to_return(status: 200, body: '[{"id": "deploy-id"}]')
+      stub_request(:get, 'https://app.saturnci.com/api/v1/job_runs?job_name=lint')
+        .to_return(status: 200, body: '[{"id": "lint-id"}]')
+
+      job_runs = SaturnCI::JobRun.list(client: client, job_name: 'deploy')
+
+      expect(job_runs.map(&:id)).to contain_exactly('deploy-id')
+    end
+  end
+
   describe '#wait_for_completion' do
     it 'polls until the job run is finished and returns the response' do
       running_response = double(body: '{"status": "Running"}')

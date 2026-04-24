@@ -14,6 +14,11 @@ module SaturnCI
       @url = url
     end
 
+    def self.list(client:, job_name:)
+      response = client.get("/api/v1/job_runs?job_name=#{job_name}")
+      JSON.parse(response.body).map { |job_run| new(id: job_run['id'], client: client) }
+    end
+
     def self.create(client:, repository:, job_name:, **params)
       response = client.post('/api/v1/job_runs', { repository: repository, job_name: job_name }.merge(params))
       body = JSON.parse(response.body)
