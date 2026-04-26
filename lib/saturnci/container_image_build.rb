@@ -17,7 +17,7 @@ module SaturnCI
     def self.create(client:, repository:, name:, **params)
       body_params = { repository: repository, container_image_build_name: name }.merge(params)
       response = client.post('/api/v1/container_image_builds', body_params)
-      raise "API returned #{response.code}" unless response.code.to_i.between?(200, 299)
+      raise "API returned #{response.code}: #{response.body}" unless response.code.to_i.between?(200, 299)
 
       body = JSON.parse(response.body)
       new(id: body['id'], client: client, url: body['url'])

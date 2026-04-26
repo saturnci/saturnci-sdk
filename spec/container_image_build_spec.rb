@@ -33,6 +33,19 @@ describe SaturnCI::ContainerImageBuild do
         )
       end.to raise_error(/500/)
     end
+
+    it 'raises an error that includes the response body' do
+      client = SaturnCI::Client.new(TestHelpers.credentials)
+
+      stub_request(:post, 'https://app.saturnci.com/api/v1/container_image_builds')
+        .to_return(status: 500, body: '<!DOCTYPE html><html><body>specific server message</body></html>')
+
+      expect do
+        SaturnCI::ContainerImageBuild.create(
+          client: client, repository: 'saturnci/saturnci', name: 'production'
+        )
+      end.to raise_error(/specific server message/)
+    end
   end
 
   describe '#wait_for_completion' do
