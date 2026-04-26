@@ -33,7 +33,11 @@ module SaturnCI
     def request(method_class, path, params = nil)
       uri = URI("#{@base_url}#{path}")
       req = method_class.new(uri)
-      req.basic_auth(@user_id, @api_token)
+      if @user_id
+        req.basic_auth(@user_id, @api_token)
+      else
+        req['Authorization'] = "Bearer #{@api_token}"
+      end
       req.set_form_data(params) if params
       Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') { |http| http.request(req) }
     end
