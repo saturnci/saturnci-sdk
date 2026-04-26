@@ -20,6 +20,21 @@ describe SaturnCI::ContainerImageBuild do
     end
   end
 
+  describe '.create when the API returns a non-2xx status' do
+    it 'raises an error that includes the status code' do
+      client = SaturnCI::Client.new(TestHelpers.credentials)
+
+      stub_request(:post, 'https://app.saturnci.com/api/v1/container_image_builds')
+        .to_return(status: 500, body: '<!DOCTYPE html><html><body>oops</body></html>')
+
+      expect do
+        SaturnCI::ContainerImageBuild.create(
+          client: client, repository: 'saturnci/saturnci', name: 'production'
+        )
+      end.to raise_error(/500/)
+    end
+  end
+
   describe '#wait_for_completion' do
     it 'polls until the container image build is finished and returns the response' do
       client = SaturnCI::Client.new(TestHelpers.credentials)
