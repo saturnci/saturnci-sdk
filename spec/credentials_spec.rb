@@ -15,4 +15,15 @@ describe SaturnCI::Credentials do
       expect(credentials.api_token).to eq('file_token')
     end
   end
+
+  context 'when only an api_token is passed' do
+    it 'uses the passed api_token without reading the credentials file' do
+      expect(File).not_to receive(:read)
+
+      credentials = SaturnCI::Credentials.new(api_token: 'passed_token')
+
+      expect(credentials.api_token).to eq('passed_token')
+      expect(credentials.user_id).to be_nil
+    end
+  end
 end
