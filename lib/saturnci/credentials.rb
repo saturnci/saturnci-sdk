@@ -9,7 +9,7 @@ module SaturnCI
     attr_reader :user_id, :api_token
 
     def initialize(user_id: nil, api_token: nil)
-      if user_id && api_token
+      if api_token
         @user_id = user_id
         @api_token = api_token
       else
