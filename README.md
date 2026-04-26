@@ -26,7 +26,7 @@ client.authenticated?
 Credentials are read automatically from `~/.saturnci/credentials.json` (see [API Authentication](https://www.saturnci.com/api-authentication.html) for setup instructions). You can also pass them explicitly:
 
 ```ruby
-credentials = SaturnCI::Credentials.new(user_id: 'your_user_id', api_token: 'your_api_token')
+credentials = SaturnCI::Credentials.new(api_token: 'your_api_token')
 client = SaturnCI::Client.new(credentials)
 ```
 

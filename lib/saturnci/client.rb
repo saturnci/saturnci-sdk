@@ -9,13 +9,12 @@ module SaturnCI
     AUTHENTICATION_CHECK_PATH = '/api/v1/test_suite_runs'
 
     def initialize(credentials = Credentials.new, base_url: 'https://app.saturnci.com')
-      @user_id = credentials.user_id
       @api_token = credentials.api_token
       @base_url = base_url
     end
 
     def authenticated?
-      return false if @user_id.nil? || @api_token.nil?
+      return false if @api_token.nil?
 
       get(AUTHENTICATION_CHECK_PATH).is_a?(Net::HTTPSuccess)
     end
@@ -33,11 +32,7 @@ module SaturnCI
     def request(method_class, path, params = nil)
       uri = URI("#{@base_url}#{path}")
       req = method_class.new(uri)
-      if @user_id
-        req.basic_auth(@user_id, @api_token)
-      else
-        req['Authorization'] = "Bearer #{@api_token}"
-      end
+      req['Authorization'] = "Bearer #{@api_token}"
       req.set_form_data(params) if params
       Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') { |http| http.request(req) }
     end

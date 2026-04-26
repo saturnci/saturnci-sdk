@@ -7,7 +7,7 @@ require 'spec_helper'
 describe SaturnCI::JobRun do
   describe '.create' do
     it 'posts to the job_runs endpoint and returns a job run with an id' do
-      client = SaturnCI::Client.new(double(user_id: 'x', api_token: 'x'))
+      client = SaturnCI::Client.new(double(api_token: 'x'))
 
       stub_request(:post, 'https://app.saturnci.com/api/v1/job_runs')
         .to_return(status: 201, body: '{"id": "abc123"}')
@@ -18,7 +18,7 @@ describe SaturnCI::JobRun do
     end
 
     it 'passes additional params to the API' do
-      client = SaturnCI::Client.new(double(user_id: 'x', api_token: 'x'))
+      client = SaturnCI::Client.new(double(api_token: 'x'))
 
       stub_request(:post, 'https://app.saturnci.com/api/v1/job_runs')
         .with(body: { repository: 'saturnci/saturnci', job_name: 'deploy',
@@ -34,7 +34,7 @@ describe SaturnCI::JobRun do
 
   describe '.list' do
     it 'returns job runs matching the given job_name' do
-      client = SaturnCI::Client.new(double(user_id: 'x', api_token: 'x'))
+      client = SaturnCI::Client.new(double(api_token: 'x'))
 
       body = '[{"id": "6a40fec7-b72c-45e0-87b5-4b5eb8a4567d"},' \
              '{"id": "7882258e-5cb8-413a-ac07-e9eb350786d4"}]'
@@ -50,7 +50,7 @@ describe SaturnCI::JobRun do
     end
 
     it 'does not return job runs with a non-matching job_name' do
-      client = SaturnCI::Client.new(double(user_id: 'x', api_token: 'x'))
+      client = SaturnCI::Client.new(double(api_token: 'x'))
 
       stub_request(:get, 'https://app.saturnci.com/api/v1/job_runs?job_name=deploy')
         .to_return(status: 200, body: '[{"id": "deploy-id"}]')
@@ -63,7 +63,7 @@ describe SaturnCI::JobRun do
     end
 
     it 'passes status through to the API' do
-      client = SaturnCI::Client.new(double(user_id: 'x', api_token: 'x'))
+      client = SaturnCI::Client.new(double(api_token: 'x'))
 
       stub_request(:get, 'https://app.saturnci.com/api/v1/job_runs?job_name=deploy&status=Running')
         .to_return(status: 200, body: '[{"id": "running-id"}]')
@@ -74,7 +74,7 @@ describe SaturnCI::JobRun do
     end
 
     it 'does not return job runs with a non-matching status' do
-      client = SaturnCI::Client.new(double(user_id: 'x', api_token: 'x'))
+      client = SaturnCI::Client.new(double(api_token: 'x'))
 
       stub_request(:get, 'https://app.saturnci.com/api/v1/job_runs?job_name=deploy&status=Running')
         .to_return(status: 200, body: '[{"id": "running-id"}]')
