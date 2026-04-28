@@ -21,15 +21,17 @@ module SaturnCI
       JSON.parse(response.body).map { |test_suite_run| new(id: test_suite_run['id'], client: client) }
     end
 
-    def self.create(client:, repository:, branch_name:, commit_hash:, commit_message:, author_name:)
-      response = client.post('/api/v1/test_suite_runs', {
-                               repository: repository,
-                               branch_name: branch_name,
-                               commit_hash: commit_hash,
-                               commit_message: commit_message,
-                               author_name: author_name
-                             })
-      body = JSON.parse(response.body)
+    def self.create(client:, repository:, branch_name:, commit_hash:,
+                    commit_message:, author_name:, task_adapter_name: nil)
+      params = {
+        repository: repository,
+        branch_name: branch_name,
+        commit_hash: commit_hash,
+        commit_message: commit_message,
+        author_name: author_name,
+        task_adapter_name: task_adapter_name
+      }.compact
+      body = JSON.parse(client.post('/api/v1/test_suite_runs', params).body)
       new(id: body['id'], client: client, url: body['url'])
     end
 

@@ -22,6 +22,43 @@ describe SaturnCI::TestSuiteRun do
 
       expect(test_suite_run.id).to eq('abc123')
     end
+
+    it 'forwards task_adapter_name to the API when given' do
+      stub = stub_request(:post, 'https://app.saturnci.com/api/v1/test_suite_runs')
+             .with(body: hash_including('task_adapter_name' => 'rspec'))
+             .to_return(status: 201, body: '{"id": "abc123"}')
+
+      client = SaturnCI::Client.new(TestHelpers.credentials)
+      SaturnCI::TestSuiteRun.create(
+        client: client,
+        repository: 'saturnci/words',
+        branch_name: 'main',
+        commit_hash: 'abc123',
+        commit_message: 'Add feature',
+        author_name: 'Jason',
+        task_adapter_name: 'rspec'
+      )
+
+      expect(stub).to have_been_requested
+    end
+
+    it 'omits task_adapter_name from the request body when not given' do
+      stub = stub_request(:post, 'https://app.saturnci.com/api/v1/test_suite_runs')
+             .with { |request| !request.body.include?('task_adapter_name') }
+             .to_return(status: 201, body: '{"id": "abc123"}')
+
+      client = SaturnCI::Client.new(TestHelpers.credentials)
+      SaturnCI::TestSuiteRun.create(
+        client: client,
+        repository: 'saturnci/book_tracker',
+        branch_name: 'main',
+        commit_hash: 'abc123',
+        commit_message: 'Add feature',
+        author_name: 'Jason'
+      )
+
+      expect(stub).to have_been_requested
+    end
   end
 
   describe '.list' do
