@@ -43,6 +43,10 @@ describe SaturnCI::MinitestReporter do
       it "writes the test's line number" do
         expect(examples.first['line_number']).to eq(5)
       end
+
+      it "writes the test's run time" do
+        expect(examples.first['run_time']).to eq(0.01)
+      end
     end
 
     context 'when one failing test was recorded' do

@@ -23,7 +23,8 @@ module SaturnCI
           'id' => "#{result.klass}##{result.name}",
           'status' => result.failure ? 'failed' : 'passed',
           'file_path' => result.source_location[0],
-          'line_number' => result.source_location[1]
+          'line_number' => result.source_location[1],
+          'run_time' => result.time
         }
       end
       @output.write(JSON.generate('examples' => examples))
