@@ -22,11 +22,6 @@ module SaturnCI
 
       def perform
         log 'starting'
-        ::Minitest.seed = 0 unless ::Minitest.seed
-        load_test_files
-        log 'all test files loaded'
-        write_json
-        log "wrote #{test_set.identifiers.count} identifiers"
       end
 
       private
