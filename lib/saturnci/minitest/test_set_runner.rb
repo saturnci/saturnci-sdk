@@ -23,6 +23,8 @@ module SaturnCI
       def call
         $stdout.sync = true
         $stderr.sync = true
+        $stdout.write("\n")
+        $stdout.flush
         log 'starting'
         ::Minitest.seed = 0 unless ::Minitest.seed
         load_test_files
