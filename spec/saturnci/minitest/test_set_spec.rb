@@ -69,12 +69,41 @@ describe SaturnCI::Minitest::TestSet do
         def self.runnable_methods
           %w[test_sum]
         end
+
+        def test_sum; end
       end
     end
 
     it "produces a TestSet whose identifiers reflect the runnable's class name and methods" do
       test_set = SaturnCI::Minitest::TestSet.from_runnables([runnable])
       expect(test_set.identifiers).to eq(%w[NumbersTest#test_sum])
+    end
+
+    it "produces a TestSet whose file_paths_by_identifier reflects each method's source location" do
+      runnable_with_source = Class.new do
+        def self.name
+          'NumbersTest'
+        end
+
+        def self.runnable_methods
+          %w[test_sum]
+        end
+
+        def self.instance_method(name)
+          super.tap do |method|
+            method.define_singleton_method(:source_location) do
+              ['test/numbers_test.rb', 4]
+            end
+          end
+        end
+
+        def test_sum; end
+      end
+
+      test_set = SaturnCI::Minitest::TestSet.from_runnables([runnable_with_source])
+      expect(test_set.file_paths_by_identifier).to eq(
+        'NumbersTest#test_sum' => 'test/numbers_test.rb'
+      )
     end
 
     it 'excludes runnables listed in the exclude argument' do
@@ -86,6 +115,8 @@ describe SaturnCI::Minitest::TestSet do
         def self.runnable_methods
           %w[test_should_not_appear]
         end
+
+        def test_should_not_appear; end
       end
 
       test_set = SaturnCI::Minitest::TestSet.from_runnables([runnable, excluded], exclude: [excluded])
