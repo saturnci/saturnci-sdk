@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'json'
+require 'pathname'
 
 module SaturnCI
   module Minitest
@@ -33,11 +34,17 @@ module SaturnCI
         {
           'id' => id,
           'status' => result.failure ? 'failed' : 'passed',
-          'file_path' => result.source_location[0],
+          'file_path' => relative_file_path(result.source_location[0]),
           'line_number' => result.source_location[1],
           'run_time' => result.time,
           'full_description' => id
         }
+      end
+
+      def relative_file_path(path)
+        Pathname.new(path).relative_path_from(Dir.pwd).to_s
+      rescue ArgumentError
+        path
       end
     end
   end

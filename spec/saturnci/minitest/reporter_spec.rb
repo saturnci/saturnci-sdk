@@ -53,6 +53,32 @@ describe SaturnCI::Minitest::Reporter do
       end
     end
 
+    context "when the test's source location is an absolute path under the working directory" do
+      let(:output) { StringIO.new }
+      let(:reporter) { SaturnCI::Minitest::Reporter.new(output) }
+      let(:absolute_path) { File.join(Dir.pwd, 'test/models/equation_test.rb') }
+      let(:result) do
+        double(
+          'Minitest::Result',
+          name: 'test_expression_is_stored',
+          klass: 'EquationTest',
+          failure: nil,
+          time: 0.01,
+          source_location: [absolute_path, 4]
+        )
+      end
+      let(:examples) { JSON.parse(output.string)['examples'] }
+
+      before do
+        reporter.record(result)
+        reporter.report
+      end
+
+      it 'writes the file path as a project-relative path' do
+        expect(examples.first['file_path']).to eq('test/models/equation_test.rb')
+      end
+    end
+
     context 'when one failing test was recorded' do
       let(:output) { StringIO.new }
       let(:reporter) { SaturnCI::Minitest::Reporter.new(output) }
