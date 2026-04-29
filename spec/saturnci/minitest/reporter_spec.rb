@@ -3,14 +3,14 @@
 require 'json'
 require 'stringio'
 require 'saturnci-sdk'
-require 'saturnci/minitest_reporter'
+require 'saturnci/minitest/reporter'
 require 'spec_helper'
 
-describe SaturnCI::MinitestReporter do
+describe SaturnCI::Minitest::Reporter do
   describe '#report' do
     context 'when one passing test was recorded' do
       let(:output) { StringIO.new }
-      let(:reporter) { SaturnCI::MinitestReporter.new(output) }
+      let(:reporter) { SaturnCI::Minitest::Reporter.new(output) }
       let(:result) do
         double(
           'Minitest::Result',
@@ -55,7 +55,7 @@ describe SaturnCI::MinitestReporter do
 
     context 'when one failing test was recorded' do
       let(:output) { StringIO.new }
-      let(:reporter) { SaturnCI::MinitestReporter.new(output) }
+      let(:reporter) { SaturnCI::Minitest::Reporter.new(output) }
       let(:result) do
         double(
           'Minitest::Result',
