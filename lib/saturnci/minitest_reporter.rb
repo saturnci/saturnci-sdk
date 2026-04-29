@@ -21,7 +21,9 @@ module SaturnCI
       examples = @results.map do |result|
         {
           'id' => "#{result.klass}##{result.name}",
-          'status' => result.failure ? 'failed' : 'passed'
+          'status' => result.failure ? 'failed' : 'passed',
+          'file_path' => result.source_location[0],
+          'line_number' => result.source_location[1]
         }
       end
       @output.write(JSON.generate('examples' => examples))

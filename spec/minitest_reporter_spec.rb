@@ -35,6 +35,14 @@ describe SaturnCI::MinitestReporter do
       it "writes 'passed' as the example's status" do
         expect(examples.first['status']).to eq('passed')
       end
+
+      it "writes the test's file path" do
+        expect(examples.first['file_path']).to eq('my_test.rb')
+      end
+
+      it "writes the test's line number" do
+        expect(examples.first['line_number']).to eq(5)
+      end
     end
 
     context 'when one failing test was recorded' do
