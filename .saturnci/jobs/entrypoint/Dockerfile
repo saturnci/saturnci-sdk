@@ -1,4 +1,4 @@
-FROM ruby:3.3-slim
+FROM ruby:3.4.2-slim
 
 RUN apt-get update && apt-get install -y \
   build-essential \
@@ -6,7 +6,9 @@ RUN apt-get update && apt-get install -y \
   && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
-COPY Gemfile Gemfile.lock saturnci-sdk.gemspec ./
-COPY lib/saturnci/version.rb lib/saturnci/version.rb
-RUN bundle install && rm -rf /usr/local/bundle/cache/*
 COPY . .
+RUN gem build saturnci-sdk.gemspec \
+  && gem install saturnci-sdk-*.gem \
+  && rm -f saturnci-sdk-*.gem
+
+ENTRYPOINT ["ruby", "-rsaturnci-sdk"]
