@@ -10,6 +10,10 @@ module SaturnCI
       def call
         'hey2'
       end
+
+      def blah
+        'blah_result'
+      end
     end
   end
 end
