@@ -47,6 +47,10 @@ describe SaturnCI::MinitestReporter do
       it "writes the test's run time" do
         expect(examples.first['run_time']).to eq(0.01)
       end
+
+      it "writes the test's full description" do
+        expect(examples.first['full_description']).to eq('MyTest#test_foo')
+      end
     end
 
     context 'when one failing test was recorded' do
