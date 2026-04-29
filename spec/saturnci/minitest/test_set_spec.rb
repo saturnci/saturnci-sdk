@@ -40,6 +40,25 @@ describe SaturnCI::Minitest::TestSet do
     end
   end
 
+  describe '#file_paths_by_identifier' do
+    context 'with one test class with two methods defined in one file' do
+      it 'returns a hash mapping each identifier to that file path' do
+        test_classes = [
+          {
+            name: 'NumbersTest',
+            method_names: %w[test_sum test_product],
+            file_path: 'test/numbers_test.rb'
+          }
+        ]
+        test_set = SaturnCI::Minitest::TestSet.new(test_classes: test_classes)
+        expect(test_set.file_paths_by_identifier).to eq(
+          'NumbersTest#test_sum' => 'test/numbers_test.rb',
+          'NumbersTest#test_product' => 'test/numbers_test.rb'
+        )
+      end
+    end
+  end
+
   describe '.from_runnables' do
     let(:runnable) do
       Class.new do

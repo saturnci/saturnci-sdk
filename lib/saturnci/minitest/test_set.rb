@@ -17,6 +17,14 @@ module SaturnCI
           test_class[:method_names].map { |method_name| "#{test_class[:name]}##{method_name}" }
         end
       end
+
+      def file_paths_by_identifier
+        @test_classes.each_with_object({}) do |test_class, result|
+          test_class[:method_names].each do |method_name|
+            result["#{test_class[:name]}##{method_name}"] = test_class[:file_path]
+          end
+        end
+      end
     end
   end
 end
