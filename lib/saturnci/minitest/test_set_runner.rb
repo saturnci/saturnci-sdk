@@ -27,7 +27,6 @@ module SaturnCI
         log 'all test files loaded'
         write_json
         log "wrote #{test_set.identifiers.count} identifiers"
-        exit!(0)
       end
 
       private
