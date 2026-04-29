@@ -8,20 +8,23 @@ module SaturnCI
   module Minitest
     class TestSetRunner
       DEFAULT_TEST_FILES_GLOB = 'test/**/*_test.rb'
+      LOG_PREFIX = '[saturnci.test_set_runner]'
 
-      def self.perform(test_files_glob: DEFAULT_TEST_FILES_GLOB, output: $stdout, log: $stderr)
-        new(test_files_glob: test_files_glob, output: output, log: log).perform
+      def self.perform(test_files_glob: DEFAULT_TEST_FILES_GLOB)
+        new(test_files_glob: test_files_glob).perform
       end
 
-      def initialize(test_files_glob:, output:, log:)
+      def initialize(test_files_glob:)
         @test_files_glob = test_files_glob
-        @output = output
-        @log = log
-        @log.sync = true if @log.respond_to?(:sync=)
       end
 
       def perform
         log 'starting'
+        ::Minitest.seed = 0 unless ::Minitest.seed
+        load_test_files
+        log 'all test files loaded'
+        write_json
+        log "wrote #{test_set.identifiers.count} identifiers"
       end
 
       private
@@ -46,13 +49,15 @@ module SaturnCI
       end
 
       def write_json
-        @output.write(JSON.generate(identifiers: test_set.identifiers))
-        @output.write("\n")
-        @output.flush if @output.respond_to?(:flush)
+        File.write(json_output_path, JSON.generate(identifiers: test_set.identifiers))
+      end
+
+      def json_output_path
+        ENV.fetch('SATURNCI_TEST_SET_JSON_PATH', 'tmp/saturnci_test_set.json')
       end
 
       def log(message)
-        @log.puts "[saturnci.test_set_runner] #{message}"
+        # No-op: deliberately not writing to any IO stream.
       end
     end
   end
