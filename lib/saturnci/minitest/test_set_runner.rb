@@ -14,6 +14,13 @@ module SaturnCI
         new(test_files_glob: test_files_glob).perform
       end
 
+      def self.json_for(test_set)
+        JSON.generate(
+          identifiers: test_set.identifiers,
+          file_paths_by_identifier: test_set.file_paths_by_identifier
+        )
+      end
+
       def initialize(test_files_glob:)
         @test_files_glob = test_files_glob
       end
@@ -49,7 +56,7 @@ module SaturnCI
       end
 
       def write_json
-        File.write(json_output_path, JSON.generate(identifiers: test_set.identifiers))
+        File.write(json_output_path, TestSetRunner.json_for(test_set))
       end
 
       def json_output_path
