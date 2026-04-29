@@ -47,7 +47,7 @@ module SaturnCI
       end
 
       def exclude
-        excluded = [::Minitest::Test, ::Minitest::Spec]
+        excluded = [::Minitest::Test]
         excluded << ActiveSupport::TestCase if defined?(ActiveSupport::TestCase)
         excluded
       end
