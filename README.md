@@ -41,13 +41,16 @@ test_suite_run = SaturnCI::TestSuiteRun.create(
   branch_name: 'main',
   commit_hash: `git rev-parse HEAD`.strip,
   commit_message: `git log -1 --format=%s`.strip,
-  author_name: `git log -1 --format=%an`.strip
+  author_name: `git log -1 --format=%an`.strip,
+  task_adapter_name: 'rails_rspec'
 )
 
 puts "Testing: #{test_suite_run.url}"
 test_suite_run.wait_for_completion
 puts "Status: #{test_suite_run.status}"
 ```
+
+Valid `task_adapter_name` values: `shell`, `rails_rspec`, `rspec`, `minitest`, `rails_minitest`, `container_image_build`.
 
 ### Building a Docker image
 
@@ -97,7 +100,8 @@ test_suite_run = SaturnCI::TestSuiteRun.create(
   branch_name: `git rev-parse --abbrev-ref HEAD`.strip,
   commit_hash: `git rev-parse HEAD`.strip,
   commit_message: `git log -1 --format=%s`.strip,
-  author_name: `git log -1 --format=%an`.strip
+  author_name: `git log -1 --format=%an`.strip,
+  task_adapter_name: 'rails_rspec'
 )
 puts "Testing: #{test_suite_run.url}"
 test_suite_run.wait_for_completion
