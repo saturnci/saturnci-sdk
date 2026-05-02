@@ -18,4 +18,16 @@ describe SaturnCI::GitHubAccount do
       end
     end
   end
+
+  describe '#destroy' do
+    it 'sends a DELETE to the github account endpoint' do
+      stub = stub_request(:delete, 'https://app.saturnci.com/api/v1/github_accounts/abc123')
+             .to_return(status: 204)
+
+      client = SaturnCI::Client.new(TestHelpers.credentials)
+      SaturnCI::GitHubAccount.new(id: 'abc123', client: client).destroy
+
+      expect(stub).to have_been_requested
+    end
+  end
 end

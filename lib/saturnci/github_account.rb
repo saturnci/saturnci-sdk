@@ -15,5 +15,9 @@ module SaturnCI
       response = client.get('/api/v1/github_accounts')
       JSON.parse(response.body).map { |github_account| new(id: github_account['id'], client: client) }
     end
+
+    def destroy
+      @client.delete("/api/v1/github_accounts/#{@id}")
+    end
   end
 end

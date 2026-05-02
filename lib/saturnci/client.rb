@@ -27,6 +27,10 @@ module SaturnCI
       request(Net::HTTP::Post, path, params)
     end
 
+    def delete(path)
+      request(Net::HTTP::Delete, path)
+    end
+
     private
 
     def request(method_class, path, params = nil)
