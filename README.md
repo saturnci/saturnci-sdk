@@ -58,7 +58,7 @@ I happen to think this is madness.
 
 Here's an example of a SaturnCI job definition.
 
-```
+```ruby
 #!/usr/bin/env ruby
 
 def run(io, error_io, github_event, client)
