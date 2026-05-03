@@ -2,6 +2,138 @@
 
 Ruby SDK for the SaturnCI API.
 
+## Why does this SDK exist?
+
+Below is a fairly typical example of a GitHub Actions config file.
+
+```yaml
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+
+      - name: Set up database
+        env:
+          RAILS_ENV: test
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/test
+        run: bin/rails db:prepare
+
+      - name: Run tests
+        env:
+          RAILS_ENV: test
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/test
+        run: bundle exec rspec
+```
+
+I happen to think this is madness.
+
+Here's an example of a SaturnCI job definition.
+
+```
+#!/usr/bin/env ruby
+
+def run(io, error_io, github_event, client)
+  io.puts "SaturnCI SDK version: #{SaturnCI::VERSION}"
+
+  return 0 unless github_event == "push"
+  return 0 if ENV['DELETED'] == "true"
+
+  branch_name = ENV['BRANCH_NAME']
+  if branch_name.to_s.empty?
+    error_io.puts "BRANCH_NAME env var is required"
+    return 1
+  end
+
+  commit_hash = ENV['COMMIT_HASH']
+  if commit_hash.to_s.empty?
+    error_io.puts "COMMIT_HASH env var is required"
+    return 1
+  end
+
+  commit_message = ENV['COMMIT_MESSAGE']
+  author_name = ENV['AUTHOR_NAME']
+
+  io.puts "Branch name: #{branch_name}"
+  io.puts "Commit hash: #{commit_hash}"
+  io.puts "Commit message: #{commit_message}"
+  io.puts "Author name: #{author_name}"
+
+  test_suite_run = SaturnCI::TestSuiteRun.create(
+    client: client,
+    repository: 'saturnci/saturnci',
+    branch_name: branch_name,
+    commit_hash: commit_hash,
+    commit_message: commit_message,
+    author_name: author_name,
+    task_adapter_name: 'rails_rspec'
+  )
+
+  io.puts "Testing: #{test_suite_run.url}"
+  test_suite_run.wait_for_completion
+  io.puts "Tests #{test_suite_run.status.downcase}."
+
+  if test_suite_run.status == "Passed" && branch_name == "main"
+    io.puts "Starting deploy"
+    deploy_job_run = SaturnCI::JobRun.create(
+      client: client,
+      repository: 'saturnci/saturnci',
+      job_name: 'deploy',
+      name: commit_message,
+      branch_name: branch_name,
+      commit_hash: commit_hash,
+      commit_message: commit_message,
+      author_name: author_name
+    )
+
+    deploy_job_run.wait_for_completion
+    io.puts "Deploy #{deploy_job_run.status.downcase}"
+  end
+
+  0
+end
+
+def client
+  SaturnCI::Client.new(credentials)
+end
+
+def credentials
+  SaturnCI::Credentials.new(
+    api_token: ENV.fetch('SATURNCI_API_TOKEN')
+  )
+end
+
+exit run($stdout, $stderr, ENV['GITHUB_EVENT'], client) if $PROGRAM_NAME == __FILE__
+```
+
 ## Installation
 
 ```
