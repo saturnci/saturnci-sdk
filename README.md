@@ -4,7 +4,7 @@ Ruby SDK for the SaturnCI API.
 
 ## Why does this SDK exist?
 
-Below is a fairly typical example of a GitHub Actions config file.
+Imagine you're a programmer from, say, the 1980s. Someone puts you in a time machine, transports you to the year 2020, and shows you the following piece of code:
 
 ```yaml
 - name: Keep screenshots from failed system tests
@@ -15,6 +15,10 @@ Below is a fairly typical example of a GitHub Actions config file.
     path: ${{ github.workspace }}/tmp/capybara
     if-no-files-found: ignore
 ```
+
+A strange programming language, you think. You look for some familiar constructs as footholds and your eye lands on two apparent conditionals: `if: failure()` and `if-no-files-found: ignore`. That's a funny way to do conditionals.
+
+Apparently this code uses a library or package called `actions/upload-artifact@v4`, but there's no clue is to _how_ it might be used. Curious.
 
 ```yaml
 name: CI
