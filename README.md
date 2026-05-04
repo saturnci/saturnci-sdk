@@ -78,7 +78,7 @@ I happen to think this is madness. There's a better way to define CI pipelines. 
 
 Pipelines are software systems. Often times, pipelines are complex, mission-critical software systems. Software systems benefit from having the following qualities:
 
-**Testability.** Do you ever commit a change and then deploy it to production without testing it, not even by pulling it up in the browser? Of course not. That would be foolishly, shamefully reckless. No responsible programmer would work that way. Yet, that's the _default_ workflow for maintaining pipelines. Just commit the change and hope it works. No thank you!
+**Testability.** Do you ever commit a change and then deploy it to production without testing it, not even by pulling it up in the browser? Of course not. That would be foolishly, shamefully reckless. No responsible programmer would work that way. Yet, that's the _default_ workflow for maintaining pipelines! Just commit the change and hope it works. No thank you!
 
 **Universality.** A programming language is _universal_ (or Turing complete if you like) if anything that can be computed can be computed using the language. Ruby, Python, Java, C, etc. all possess this property of universality. Hacks have been added on top of YAML to try to make it universal, and these hacks "work", but why not just use a language that already has universality built in?
 
