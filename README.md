@@ -72,7 +72,7 @@ jobs:
           if-no-files-found: ignore
 ```
 
-I happen to think this is madness.
+I happen to think this is madness. There's a better way to define CI pipelines. We don't even have to invent any new tools. There's something that's been right under our noses the whole time.
 
 ## An alternative to executable YAML
 
