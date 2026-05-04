@@ -18,7 +18,7 @@ How does one define a pipeline in GitHub Actions, CircleCI or GitLab? YAML, of c
 
 How did we get here? How did we get to a place where we're using a configuration file format as a programming language?
 
-No one sat down one day and decided that large, complex, mission-critical software systems built in executable YAML would be a good idea. (If they did, they should be punished.) We have YAML-as-code because, presumably, a succession of locally reasonable decisions accumulated over time to create a monstrosity.
+No one sat down one day and decided that large, complex, mission-critical software systems built in executable YAML would be a good idea. (If they did, they should be punished.) Presumably, we have YAML-as-code because a succession of locally reasonable decisions accumulated over time to create a monstrosity.
 
 ```yaml
 name: CI
