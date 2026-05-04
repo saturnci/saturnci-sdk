@@ -4,7 +4,7 @@ Ruby SDK for the SaturnCI API.
 
 ## Why does this SDK exist?
 
-Imagine you're a programmer from, say, the 1980s. Someone puts you in a time machine, transports you to the year 2020, and shows you the following piece of code:
+How does one define a pipeline in GitHub Actions, CircleCI or GitLab? YAML, of course.
 
 ```yaml
 - name: Keep screenshots from failed system tests
@@ -16,9 +16,9 @@ Imagine you're a programmer from, say, the 1980s. Someone puts you in a time mac
     if-no-files-found: ignore
 ```
 
-A strange programming language, you think. You look for some familiar constructs as footholds and your eye lands on two apparent conditionals: `if: failure()` and `if-no-files-found: ignore`. That's a funny way to do conditionals.
+How did we get here? How did we get to a place where we're using a configuration file format as a programming language?
 
-Apparently this code uses a library or package called `actions/upload-artifact@v4`, but there's no clue is to _how_ it might be used. Curious.
+No one sat down one day and decided that large, complex, mission-critical software systems built in executable YAML would be a good idea. (If someone did, they should be punished.) The reason we write programs in YAML is because a bunch of locally reasonable decisions accumulated over time to create a monstrosity.
 
 ```yaml
 name: CI
