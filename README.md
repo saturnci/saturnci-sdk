@@ -7,13 +7,22 @@ Ruby SDK for the SaturnCI API.
 Below is a fairly typical example of a GitHub Actions config file.
 
 ```yaml
+- name: Keep screenshots from failed system tests
+  uses: actions/upload-artifact@v4
+  if: failure()
+  with:
+    name: screenshots
+    path: ${{ github.workspace }}/tmp/capybara
+    if-no-files-found: ignore
+```
+
+```yaml
 name: CI
 
 on:
-  push:
-    branches: [main]
   pull_request:
-    branches: [main]
+  push:
+    branches: [ main ]
 
 jobs:
   test:
@@ -21,37 +30,40 @@ jobs:
 
     services:
       postgres:
-        image: postgres:15
+        image: postgres
         env:
+          POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
         ports:
           - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+        options: --health-cmd="pg_isready" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Install packages
+        run: sudo apt-get update && sudo apt-get install --no-install-recommends -y google-chrome-stable curl libjemalloc2 libvips postgresql-client libpq-dev
+
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: "3.3"
+          ruby-version: .ruby-version
           bundler-cache: true
-
-      - name: Set up database
-        env:
-          RAILS_ENV: test
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432/test
-        run: bin/rails db:prepare
 
       - name: Run tests
         env:
           RAILS_ENV: test
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432/test
-        run: bundle exec rspec
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432
+        run: bin/rails db:setup spec
+
+      - name: Keep screenshots from failed system tests
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: screenshots
+          path: ${{ github.workspace }}/tmp/capybara
+          if-no-files-found: ignore
 ```
 
 I happen to think this is madness.
