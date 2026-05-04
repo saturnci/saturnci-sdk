@@ -20,6 +20,8 @@ How did we get here? How did we get to a place where we're using a configuration
 
 No one sat down one day and decided that large, complex, mission-critical software systems built in executable YAML would be a good idea. (If they did, they should be punished.) Presumably, we have YAML-as-code because a succession of locally reasonable decisions accumulated over time to create a monstrosity.
 
+I invite you to take a leisurely scroll through this [RSpec/Rails GitHub Actions configuration example](https://thoughtbot.com/blog/rspec-rails-github-actions-configuration) I found.
+
 ```yaml
 name: CI
 
