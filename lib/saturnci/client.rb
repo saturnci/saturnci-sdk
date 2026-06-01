@@ -8,7 +8,7 @@ module SaturnCI
   class Client
     AUTHENTICATION_CHECK_PATH = '/api/v1/test_suite_runs'
 
-    def initialize(credentials = Credentials.new, base_url: 'https://app.saturnci.com')
+    def initialize(credentials = Credentials.new, base_url: ENV.fetch('SATURNCI_API_HOST', 'https://app.saturnci.com'))
       @api_token = credentials.api_token
       @base_url = base_url
     end
