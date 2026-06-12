@@ -17,4 +17,7 @@ Metrics/BlockLength:
     - 'spec/**/*'
 
 Metrics/ParameterLists:
-  Max: 7
+  Max: 8
+
+Metrics/MethodLength:
+  Max: 11
