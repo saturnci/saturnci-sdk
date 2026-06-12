@@ -28,6 +28,17 @@ describe SaturnCI::Client do
       end
     end
 
+    context 'when credentials are invalid' do
+      let(:client) { SaturnCI::Client.new(double(api_token: 'x')) }
+
+      it 'returns false' do
+        stub_request(:get, 'https://app.saturnci.com/api/v1/test_suite_runs')
+          .to_return(status: 401)
+
+        expect(client.authenticated?).to be false
+      end
+    end
+
     context 'when credentials are missing' do
       let(:client) { SaturnCI::Client.new(double(api_token: nil)) }
 

@@ -16,7 +16,10 @@ module SaturnCI
     def authenticated?
       return false if @api_token.nil?
 
-      get(AUTHENTICATION_CHECK_PATH).is_a?(Net::HTTPSuccess)
+      get(AUTHENTICATION_CHECK_PATH)
+      true
+    rescue InvalidRequestError
+      false
     end
 
     def get(path)
