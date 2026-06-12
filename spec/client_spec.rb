@@ -37,6 +37,20 @@ describe SaturnCI::Client do
     end
   end
 
+  describe '#post' do
+    context 'when the API responds with a non-2xx status' do
+      it 'raises SaturnCI::InvalidRequestError' do
+        client = SaturnCI::Client.new(double(api_token: 'x'))
+
+        stub_request(:post, 'https://app.saturnci.com/api/v1/test_suite_runs')
+          .to_return(status: 404, body: '<!DOCTYPE html><html></html>')
+
+        expect { client.post('/api/v1/test_suite_runs') }
+          .to raise_error(SaturnCI::InvalidRequestError, /404/)
+      end
+    end
+  end
+
   describe 'authentication header' do
     it 'sends Authorization: Bearer <api_token>' do
       client = SaturnCI::Client.new(double(api_token: 'abc123'))

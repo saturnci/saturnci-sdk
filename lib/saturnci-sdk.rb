@@ -2,6 +2,7 @@
 
 require_relative 'saturnci/version'
 require_relative 'saturnci/credentials'
+require_relative 'saturnci/invalid_request_error'
 require_relative 'saturnci/client'
 require_relative 'saturnci/container_image_build'
 require_relative 'saturnci/github_account'

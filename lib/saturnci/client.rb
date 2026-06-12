@@ -38,7 +38,12 @@ module SaturnCI
       req = method_class.new(uri)
       req['Authorization'] = "Bearer #{@api_token}"
       req.set_form_data(params) if params
-      Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') { |http| http.request(req) }
+      response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') { |http| http.request(req) }
+      unless response.is_a?(Net::HTTPSuccess)
+        raise InvalidRequestError, "API returned #{response.code}: #{response.body}"
+      end
+
+      response
     end
   end
 end
