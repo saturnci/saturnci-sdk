@@ -7,12 +7,13 @@ module SaturnCI
   class TestSuiteRun
     TERMINAL_STATUSES = ['Passed', 'Failed', 'Cancelled', 'Timed Out'].freeze
 
-    attr_reader :id, :url, :status
+    attr_reader :id, :url, :status, :parent_job_run_id
 
-    def initialize(id:, client:, url: nil)
+    def initialize(id:, client:, url: nil, parent_job_run_id: nil)
       @id = id
       @client = client
       @url = url
+      @parent_job_run_id = parent_job_run_id
     end
 
     def self.list(client:, commit_hash:)
@@ -25,7 +26,7 @@ module SaturnCI
       body = JSON.parse(
         client.post('/api/v1/test_suite_runs', { repository: repository }.merge(params.compact)).body
       )
-      new(id: body['id'], client: client, url: body['url'])
+      new(id: body['id'], client: client, url: body['url'], parent_job_run_id: body['parent_job_run_id'])
     end
 
     def wait_for_completion
