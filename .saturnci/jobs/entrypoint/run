@@ -29,6 +29,7 @@ def run(io, error_io, github_event, client)
   test_suite_run = SaturnCI::TestSuiteRun.create(
     client: client,
     repository: "saturnci/saturnci-sdk",
+    job_name: "test_suite",
     task_adapter_name: "rspec",
     branch_name: branch_name,
     commit_hash: commit_hash,
