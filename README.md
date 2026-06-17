@@ -169,15 +169,14 @@ carry their `id`.
 
 ## GitHub accounts
 
+List the GitHub accounts connected to the authenticated user:
+
 ```ruby
 github_accounts = SaturnCI::GitHubAccount.list(client: client)
-github_accounts.each(&:destroy)
-```
 
-Revoke the GitHub OAuth grant for the authenticated user:
-
-```ruby
-SaturnCI::GitHubOAuthGrant.destroy(client: client)
+github_accounts.each do |github_account|
+  puts github_account.id
+end
 ```
 
 ## A complete pipeline: test and deploy
