@@ -8,15 +8,14 @@ run jobs, and wait for their results.
 
 ## Installation
 
-```
-gem install saturnci-sdk
-```
-
-Or add it to your Gemfile:
+The gem is installed from its git repository. Add it to your Gemfile, pinned to
+a specific ref:
 
 ```ruby
-gem 'saturnci-sdk'
+gem 'saturnci-sdk', git: 'https://github.com/saturnci/saturnci-sdk.git', ref: 'fd22a7e'
 ```
+
+Then run `bundle install`.
 
 Requires Ruby 3.0 or later.
 
