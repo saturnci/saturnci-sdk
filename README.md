@@ -180,45 +180,99 @@ Revoke the GitHub OAuth grant for the authenticated user:
 SaturnCI::GitHubOAuthGrant.destroy(client: client)
 ```
 
-## A complete pipeline: test, build, and deploy
+## A complete pipeline: test and deploy
+
+This is the entrypoint SaturnCI uses to test and deploy itself. On a push, it
+runs the test suite and, if the tests pass on `main`, runs the deploy job. The
+test suite run and the deploy job run are both linked to the entrypoint job run
+via `parent_job_run_id`.
 
 ```ruby
-client = SaturnCI::Client.new
-repository = 'your-org/your-repo'
+#!/usr/bin/env ruby
 
-# Test
-test_suite_run = SaturnCI::TestSuiteRun.create(
-  client: client,
-  repository: repository,
-  branch_name: `git rev-parse --abbrev-ref HEAD`.strip,
-  commit_hash: `git rev-parse HEAD`.strip,
-  commit_message: `git log -1 --format=%s`.strip,
-  author_name: `git log -1 --format=%an`.strip,
-  task_adapter_name: 'rails_rspec'
-)
-puts "Testing: #{test_suite_run.url}"
-test_suite_run.wait_for_completion
-abort 'Tests failed!' unless test_suite_run.status == 'Passed'
+class EntrypointJob
+  def initialize(io:, error_io:, github_event:, client:)
+    @io = io
+    @error_io = error_io
+    @github_event = github_event
+    @client = client
+  end
 
-# Build
-container_image_build = SaturnCI::ContainerImageBuild.create(
-  client: client,
-  repository: repository,
-  name: 'production'
-)
-puts "Building: #{container_image_build.url}"
-container_image_build.wait_for_completion
+  def perform
+    @io.puts "SaturnCI SDK version: #{SaturnCI::VERSION}"
 
-# Deploy
-job_run = SaturnCI::JobRun.create(
-  client: client,
-  repository: repository,
-  job_name: 'deploy',
-  container_image_url: container_image_build.container_image_url
-)
-puts "Deploying: #{job_run.url}"
-job_run.wait_for_completion
-puts "Deploy complete!"
+    return 0 unless @github_event == "push"
+    return 0 if ENV['DELETED'] == "true"
+
+    return 1 unless assert_env_presence(
+      "BRANCH_NAME",
+      "COMMIT_HASH",
+      "COMMIT_MESSAGE",
+      "AUTHOR_NAME"
+    )
+
+    test_suite_run = SaturnCI::TestSuiteRun.create(
+      client: @client,
+      repository: 'your-org/your-repo',
+      job_name: 'test_suite',
+      task_adapter_name: 'rails_rspec',
+      parent_job_run_id: ENV['JOB_RUN_ID'],
+      branch_name: ENV['BRANCH_NAME'],
+      commit_hash: ENV['COMMIT_HASH'],
+      commit_message: ENV['COMMIT_MESSAGE'],
+      author_name: ENV['AUTHOR_NAME']
+    )
+
+    @io.puts "Testing: #{test_suite_run.url}"
+    test_suite_run.wait_for_completion
+    @io.puts "Tests #{test_suite_run.status.downcase}."
+
+    if test_suite_run.status == "Passed" && ENV['BRANCH_NAME'] == "main"
+      @io.puts "Starting deploy"
+      deploy_job_run = SaturnCI::JobRun.create(
+        client: @client,
+        repository: 'your-org/your-repo',
+        job_name: 'deploy',
+        name: ENV['COMMIT_MESSAGE'],
+        branch_name: ENV['BRANCH_NAME'],
+        commit_hash: ENV['COMMIT_HASH'],
+        commit_message: ENV['COMMIT_MESSAGE'],
+        author_name: ENV['AUTHOR_NAME'],
+        parent_job_run_id: test_suite_run.id
+      )
+
+      deploy_job_run.wait_for_completion
+      @io.puts "Deploy #{deploy_job_run.status.downcase}"
+    end
+
+    0
+  end
+
+  private
+
+  def assert_env_presence(*names)
+    names.each do |name|
+      if ENV[name].to_s.empty?
+        @error_io.puts "#{name} env var is required"
+        return false
+      end
+    end
+    true
+  end
+end
+
+def client
+  SaturnCI::Client.new(SaturnCI::Credentials.new(api_token: ENV.fetch('SATURNCI_ACCESS_TOKEN')))
+end
+
+if $PROGRAM_NAME == __FILE__
+  exit EntrypointJob.new(
+    io: $stdout,
+    error_io: $stderr,
+    github_event: ENV['GITHUB_EVENT'],
+    client: client
+  ).perform
+end
 ```
 
 ## License
