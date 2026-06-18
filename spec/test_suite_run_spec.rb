@@ -5,6 +5,23 @@ require 'webmock/rspec'
 require 'spec_helper'
 
 describe SaturnCI::TestSuiteRun do
+  describe '#child_job_runs' do
+    it 'creates a job run with this run as the parent' do
+      client = SaturnCI::Client.new(TestHelpers.credentials)
+      test_suite_run = SaturnCI::TestSuiteRun.new(id: 'parent-id', client: client)
+
+      stub = stub_request(:post, 'https://app.saturnci.com/api/v1/job_runs')
+             .with(body: hash_including('parent_job_run_id' => 'parent-id', 'job_name' => 'deploy'))
+             .to_return(status: 201, body: '{"id": "child-id"}')
+
+      child = test_suite_run.child_job_runs.create(repository: 'saturnci/saturnci', job_name: 'deploy')
+
+      expect(child).to be_a(SaturnCI::JobRun)
+      expect(child.id).to eq('child-id')
+      expect(stub).to have_been_requested
+    end
+  end
+
   describe '.create' do
     it 'posts to the test suite runs endpoint and returns a test suite run with an id' do
       stub_request(:post, 'https://app.saturnci.com/api/v1/test_suite_runs')

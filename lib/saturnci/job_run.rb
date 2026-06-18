@@ -2,6 +2,7 @@
 
 require 'json'
 require 'uri'
+require_relative 'child_job_runs'
 
 module SaturnCI
   class JobRun
@@ -13,6 +14,10 @@ module SaturnCI
       @id = id
       @client = client
       @url = url
+    end
+
+    def child_job_runs
+      ChildJobRuns.new(parent_id: @id, client: @client)
     end
 
     def self.list(client:, job_name:, status: nil)

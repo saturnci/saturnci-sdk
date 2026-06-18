@@ -2,6 +2,7 @@
 
 require 'json'
 require 'uri'
+require_relative 'child_job_runs'
 
 module SaturnCI
   class TestSuiteRun
@@ -14,6 +15,10 @@ module SaturnCI
       @client = client
       @url = url
       @parent_job_run_id = parent_job_run_id
+    end
+
+    def child_job_runs
+      ChildJobRuns.new(parent_id: @id, client: @client)
     end
 
     def self.list(client:, commit_hash:)
