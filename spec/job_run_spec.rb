@@ -30,6 +30,17 @@ describe SaturnCI::JobRun do
 
       expect(job_run.id).to eq('abc123')
     end
+
+    it 'exposes the parent job run id from the response' do
+      client = SaturnCI::Client.new(double(api_token: 'x'))
+
+      stub_request(:post, 'https://app.saturnci.com/api/v1/job_runs')
+        .to_return(status: 201, body: '{"id": "abc123", "parent_job_run_id": "parent123"}')
+
+      job_run = SaturnCI::JobRun.create(client: client, repository: 'saturnci/saturnci', job_name: 'deploy')
+
+      expect(job_run.parent_job_run_id).to eq('parent123')
+    end
   end
 
   describe '.list' do
