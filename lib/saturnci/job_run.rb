@@ -5,7 +5,7 @@ require 'uri'
 
 module SaturnCI
   class JobRun
-    TERMINAL_STATUSES = %w[Passed Failed Cancelled].freeze
+    TERMINAL_STATUSES = ['Passed', 'Failed', 'Cancelled', 'Timed Out'].freeze
 
     attr_reader :id, :url, :status
 
