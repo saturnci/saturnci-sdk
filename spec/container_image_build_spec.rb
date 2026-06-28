@@ -18,6 +18,19 @@ describe SaturnCI::ContainerImageBuild do
 
       expect(container_image_build.id).to eq('abc123')
     end
+
+    it 'can be created without a name' do
+      client = SaturnCI::Client.new(TestHelpers.credentials)
+
+      stub_request(:post, 'https://app.saturnci.com/api/v1/container_image_builds')
+        .to_return(status: 201, body: '{"id": "abc123"}')
+
+      container_image_build = SaturnCI::ContainerImageBuild.create(
+        client: client, repository: 'saturnci/saturnci', job_name: 'production_image_build'
+      )
+
+      expect(container_image_build.id).to eq('abc123')
+    end
   end
 
   describe '.create when the API returns a non-2xx status' do

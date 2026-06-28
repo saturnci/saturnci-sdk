@@ -14,8 +14,9 @@ module SaturnCI
       @url = url
     end
 
-    def self.create(client:, repository:, name:, **params)
-      body_params = { repository: repository, container_image_build_name: name }.merge(params)
+    def self.create(client:, repository:, name: nil, **params)
+      body_params = { repository: repository }.merge(params)
+      body_params[:container_image_build_name] = name if name
       response = client.post('/api/v1/container_image_builds', body_params)
       body = JSON.parse(response.body)
       new(id: body['id'], client: client, url: body['url'])
