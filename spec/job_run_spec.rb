@@ -6,16 +6,18 @@ require 'spec_helper'
 
 describe SaturnCI::JobRun do
   describe '.find' do
-    it 'fetches the job run and exposes its job name and status' do
+    it 'fetches the job run and exposes its job name, status, and branch name' do
       client = SaturnCI::Client.new(double(api_token: 'x'))
 
       stub_request(:get, 'https://app.saturnci.com/api/v1/job_runs/abc123')
-        .to_return(status: 200, body: '{"id": "abc123", "job_name": "github_push", "status": "Passed"}')
+        .to_return(status: 200,
+                   body: '{"id": "abc123", "job_name": "github_push", "status": "Passed", "branch_name": "main"}')
 
       job_run = SaturnCI::JobRun.find(client: client, id: 'abc123')
 
       expect(job_run.job_name).to eq('github_push')
       expect(job_run.status).to eq('Passed')
+      expect(job_run.branch_name).to eq('main')
     end
   end
 

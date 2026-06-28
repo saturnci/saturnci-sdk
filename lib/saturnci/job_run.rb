@@ -7,15 +7,16 @@ module SaturnCI
   class JobRun
     TERMINAL_STATUSES = ['Passed', 'Failed', 'Cancelled', 'Timed Out'].freeze
 
-    attr_reader :id, :url, :status, :parent_job_run_id, :job_name
+    attr_reader :id, :url, :status, :parent_job_run_id, :job_name, :branch_name
 
-    def initialize(id:, client:, url: nil, parent_job_run_id: nil, job_name: nil, status: nil)
+    def initialize(id:, client:, url: nil, parent_job_run_id: nil, job_name: nil, status: nil, branch_name: nil)
       @id = id
       @client = client
       @url = url
       @parent_job_run_id = parent_job_run_id
       @job_name = job_name
       @status = status
+      @branch_name = branch_name
     end
 
     def self.find(client:, id:)
@@ -25,6 +26,7 @@ module SaturnCI
         client: client,
         job_name: body['job_name'],
         status: body['status'],
+        branch_name: body['branch_name'],
         parent_job_run_id: body['parent_job_run_id']
       )
     end
