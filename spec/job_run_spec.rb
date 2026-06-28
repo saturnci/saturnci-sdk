@@ -5,6 +5,20 @@ require 'webmock/rspec'
 require 'spec_helper'
 
 describe SaturnCI::JobRun do
+  describe '.find' do
+    it 'fetches the job run and exposes its job name and status' do
+      client = SaturnCI::Client.new(double(api_token: 'x'))
+
+      stub_request(:get, 'https://app.saturnci.com/api/v1/job_runs/abc123')
+        .to_return(status: 200, body: '{"id": "abc123", "job_name": "github_push", "status": "Passed"}')
+
+      job_run = SaturnCI::JobRun.find(client: client, id: 'abc123')
+
+      expect(job_run.job_name).to eq('github_push')
+      expect(job_run.status).to eq('Passed')
+    end
+  end
+
   describe '.create' do
     it 'posts to the job_runs endpoint and returns a job run with an id' do
       client = SaturnCI::Client.new(double(api_token: 'x'))
