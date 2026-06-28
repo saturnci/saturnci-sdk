@@ -19,6 +19,35 @@ describe SaturnCI::JobRun do
       expect(job_run.status).to eq('Passed')
       expect(job_run.branch_name).to eq('main')
     end
+
+    it 'exposes the params' do
+      client = SaturnCI::Client.new(double(api_token: 'x'))
+
+      stub_request(:get, 'https://app.saturnci.com/api/v1/job_runs/abc123')
+        .to_return(status: 200,
+                   body: '{"id": "abc123", "params": {"container_image_url": "registry/app:abc"}}')
+
+      job_run = SaturnCI::JobRun.find(client: client, id: 'abc123')
+
+      expect(job_run.params).to eq('container_image_url' => 'registry/app:abc')
+    end
+  end
+
+  describe '#update' do
+    it 'patches the job run with the given params' do
+      client = SaturnCI::Client.new(double(api_token: 'x'))
+
+      stub_request(:patch, 'https://app.saturnci.com/api/v1/job_runs/abc123')
+        .with(body: { 'container_image_url' => 'registry/app:abc' })
+        .to_return(status: 200, body: '{"id": "abc123"}')
+
+      job_run = SaturnCI::JobRun.new(id: 'abc123', client: client)
+
+      job_run.update(container_image_url: 'registry/app:abc')
+
+      expect(WebMock).to have_requested(:patch, 'https://app.saturnci.com/api/v1/job_runs/abc123')
+        .with(body: { 'container_image_url' => 'registry/app:abc' })
+    end
   end
 
   describe '.create' do

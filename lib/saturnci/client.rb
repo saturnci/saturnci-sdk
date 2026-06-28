@@ -30,6 +30,10 @@ module SaturnCI
       request(Net::HTTP::Post, path, params)
     end
 
+    def patch(path, params = {})
+      request(Net::HTTP::Patch, path, params)
+    end
+
     def delete(path)
       request(Net::HTTP::Delete, path)
     end
