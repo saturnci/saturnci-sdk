@@ -8,7 +8,7 @@ module SaturnCI
     end
 
     def clone_repo
-      @shell.execute('git clone')
+      raise 'git clone failed' unless @shell.execute('git clone')
     end
   end
 end
