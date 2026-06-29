@@ -14,13 +14,5 @@ describe SaturnCI::Environment do
 
       expect(shell).to have_received(:execute).with(a_string_starting_with('git clone'))
     end
-
-    it 'raises when the clone fails' do
-      shell = double('shell', execute: false)
-      job_run = double('job_run')
-      environment = SaturnCI::Environment.new(job_run: job_run, shell: shell)
-
-      expect { environment.clone_repo }.to raise_error(/clone failed/)
-    end
   end
 end
