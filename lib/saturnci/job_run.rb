@@ -38,6 +38,10 @@ module SaturnCI
       @client.patch("/api/v1/job_runs/#{@id}", params)
     end
 
+    def environment
+      Environment.new(job_run: self)
+    end
+
     def self.list(client:, job_name:, status: nil)
       params = { job_name: job_name }
       params[:status] = status if status

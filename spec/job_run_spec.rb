@@ -186,4 +186,12 @@ describe SaturnCI::JobRun do
       expect(job_run.url).to eq('https://app.saturnci.com/jobs/abc123')
     end
   end
+
+  describe '#environment' do
+    it 'is an environment' do
+      job_run = SaturnCI::JobRun.new(id: 'abc123', client: double)
+
+      expect(job_run.environment).to be_a(SaturnCI::Environment)
+    end
+  end
 end
