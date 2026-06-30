@@ -31,6 +31,18 @@ describe SaturnCI::JobRun do
       expect(job_run.root_job_run_id).to eq('root123')
     end
 
+    it 'exposes the pipeline workspace dir' do
+      client = SaturnCI::Client.new(double(api_token: 'x'))
+
+      stub_request(:get, 'https://app.saturnci.com/api/v1/job_runs/abc123')
+        .to_return(status: 200,
+                   body: '{"id": "abc123", "pipeline_workspace_dir": "/pipeline-workspaces/root123"}')
+
+      job_run = SaturnCI::JobRun.find(client: client, id: 'abc123')
+
+      expect(job_run.pipeline_workspace_dir).to eq('/pipeline-workspaces/root123')
+    end
+
     it 'exposes the repository github metadata' do
       client = SaturnCI::Client.new(double(api_token: 'x'))
 
