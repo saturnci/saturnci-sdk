@@ -50,7 +50,7 @@ module SaturnCI
     end
 
     def environment
-      Environment.new(job_run: self)
+      Environment.new(job_run: self, client: @client)
     end
 
     def self.list(client:, job_name:, status: nil)
