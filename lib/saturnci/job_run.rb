@@ -7,16 +7,15 @@ module SaturnCI
   class JobRun
     TERMINAL_STATUSES = ['Passed', 'Failed', 'Cancelled', 'Timed Out'].freeze
 
-    attr_reader :id, :url, :status, :parent_job_run_id, :root_job_run_id, :pipeline_workspace_dir, :job_name,
+    attr_reader :id, :url, :status, :parent_job_run_id, :pipeline_workspace_dir, :job_name,
                 :branch_name, :params, :repository
 
-    def initialize(id:, client:, url: nil, parent_job_run_id: nil, root_job_run_id: nil, pipeline_workspace_dir: nil,
+    def initialize(id:, client:, url: nil, parent_job_run_id: nil, pipeline_workspace_dir: nil,
                    job_name: nil, status: nil, branch_name: nil, params: nil, repository: nil)
       @id = id
       @client = client
       @url = url
       @parent_job_run_id = parent_job_run_id
-      @root_job_run_id = root_job_run_id
       @pipeline_workspace_dir = pipeline_workspace_dir
       @job_name = job_name
       @status = status
@@ -34,7 +33,6 @@ module SaturnCI
         status: body['status'],
         branch_name: body['branch_name'],
         parent_job_run_id: body['parent_job_run_id'],
-        root_job_run_id: body['root_job_run_id'],
         pipeline_workspace_dir: body['pipeline_workspace_dir'],
         params: body['params'],
         repository: repository_from(body['repository'])
