@@ -16,7 +16,13 @@ module SaturnCI
     end
 
     def clone_repo
-      @shell.execute('git clone --recurse-submodules')
+      token_url = "https://x-access-token:#{github_token}@github.com/"
+      @shell.execute(
+        'git ' \
+        "-c url.\"#{token_url}\".insteadOf=\"https://github.com/\" " \
+        "-c url.\"#{token_url}\".insteadOf=\"git@github.com:\" " \
+        "clone --recurse-submodules https://github.com/#{@job_run.repository.github_repo_full_name}"
+      )
     end
   end
 end
