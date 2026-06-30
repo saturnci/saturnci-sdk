@@ -17,12 +17,15 @@ module SaturnCI
 
     def clone_repo
       token_url = "https://x-access-token:#{github_token}@github.com/"
+      pipeline_workspace_dir = @job_run.pipeline_workspace_dir
       @shell.execute(
         'git ' \
         "-c url.\"#{token_url}\".insteadOf=\"https://github.com/\" " \
         "-c url.\"#{token_url}\".insteadOf=\"git@github.com:\" " \
-        "clone --recurse-submodules https://github.com/#{@job_run.repository.github_repo_full_name}"
+        "clone --recurse-submodules https://github.com/#{@job_run.repository.github_repo_full_name} " \
+        "#{pipeline_workspace_dir}"
       )
+      pipeline_workspace_dir
     end
   end
 end

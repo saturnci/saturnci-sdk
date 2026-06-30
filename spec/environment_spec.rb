@@ -22,25 +22,35 @@ describe SaturnCI::Environment do
   end
 
   describe '#clone_repo' do
-    it 'clones the repository over an authenticated github url' do
-      client = SaturnCI::Client.new(double(api_token: 'x'))
-      repository = SaturnCI::Repository.new(github_repo_full_name: 'saturnci/saturnci',
-                                            github_installation_id: '12345678')
-      job_run = double('job_run', repository: repository)
-      shell = spy('shell')
-      environment = SaturnCI::Environment.new(job_run: job_run, client: client, shell: shell)
+    let(:client) { SaturnCI::Client.new(double(api_token: 'x')) }
+    let(:repository) do
+      SaturnCI::Repository.new(github_repo_full_name: 'saturnci/saturnci',
+                               github_installation_id: '12345678')
+    end
+    let(:job_run) do
+      double('job_run', repository: repository, pipeline_workspace_dir: '/pipeline-workspaces/root123')
+    end
+    let(:shell) { spy('shell') }
+    let(:environment) { SaturnCI::Environment.new(job_run: job_run, client: client, shell: shell) }
 
+    before do
       stub_request(:post, 'https://app.saturnci.com/api/v1/task_agents/github_tokens')
         .to_return(status: 200, body: 'ghs_sometoken')
+    end
 
+    it 'clones the repository into the pipeline workspace over an authenticated github url' do
       environment.clone_repo
 
       expect(shell).to have_received(:execute).with(
         'git ' \
         '-c url."https://x-access-token:ghs_sometoken@github.com/".insteadOf="https://github.com/" ' \
         '-c url."https://x-access-token:ghs_sometoken@github.com/".insteadOf="git@github.com:" ' \
-        'clone --recurse-submodules https://github.com/saturnci/saturnci'
+        'clone --recurse-submodules https://github.com/saturnci/saturnci /pipeline-workspaces/root123'
       )
+    end
+
+    it 'returns the pipeline workspace dir it cloned into' do
+      expect(environment.clone_repo).to eq('/pipeline-workspaces/root123')
     end
   end
 end
