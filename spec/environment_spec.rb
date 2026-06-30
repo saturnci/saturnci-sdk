@@ -21,6 +21,22 @@ describe SaturnCI::Environment do
     end
   end
 
+  describe '#file_exists?' do
+    it 'is true when the path exists on the filesystem' do
+      environment = SaturnCI::Environment.new(job_run: double, client: double)
+      allow(File).to receive(:exist?).with('/pipeline-workspaces/root123').and_return(true)
+
+      expect(environment.file_exists?('/pipeline-workspaces/root123')).to be(true)
+    end
+
+    it 'is false when the path does not exist on the filesystem' do
+      environment = SaturnCI::Environment.new(job_run: double, client: double)
+      allow(File).to receive(:exist?).with('/pipeline-workspaces/root123').and_return(false)
+
+      expect(environment.file_exists?('/pipeline-workspaces/root123')).to be(false)
+    end
+  end
+
   describe '#clone_repo' do
     let(:client) { SaturnCI::Client.new(double(api_token: 'x')) }
     let(:repository) do

@@ -15,6 +15,10 @@ module SaturnCI
       ).body
     end
 
+    def file_exists?(path)
+      File.exist?(path)
+    end
+
     def clone_repo
       token_url = "https://x-access-token:#{github_token}@github.com/"
       pipeline_workspace_dir = @job_run.pipeline_workspace_dir
