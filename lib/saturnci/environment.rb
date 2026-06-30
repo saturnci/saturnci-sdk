@@ -8,7 +8,7 @@ module SaturnCI
     end
 
     def clone_repo
-      @shell.execute('git clone')
+      @shell.execute('git clone --recurse-submodules')
     end
   end
 end

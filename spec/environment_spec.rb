@@ -12,7 +12,7 @@ describe SaturnCI::Environment do
 
       environment.clone_repo
 
-      expect(shell).to have_received(:execute).with(a_string_starting_with('git clone'))
+      expect(shell).to have_received(:execute).with(a_string_starting_with('git clone --recurse-submodules'))
     end
   end
 end
