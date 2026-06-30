@@ -25,6 +25,10 @@ module SaturnCI
         "clone --recurse-submodules https://github.com/#{@job_run.repository.github_repo_full_name} " \
         "#{pipeline_workspace_dir}"
       )
+      unless Dir.exist?(pipeline_workspace_dir) && !Dir.empty?(pipeline_workspace_dir)
+        raise "pipeline workspace not readable after clone: #{pipeline_workspace_dir}"
+      end
+
       pipeline_workspace_dir
     end
   end

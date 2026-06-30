@@ -36,6 +36,8 @@ describe SaturnCI::Environment do
     before do
       stub_request(:post, 'https://app.saturnci.com/api/v1/task_agents/github_tokens')
         .to_return(status: 200, body: 'ghs_sometoken')
+      allow(Dir).to receive(:exist?).with('/pipeline-workspaces/root123').and_return(true)
+      allow(Dir).to receive(:empty?).with('/pipeline-workspaces/root123').and_return(false)
     end
 
     it 'clones the repository into the pipeline workspace over an authenticated github url' do
@@ -51,6 +53,22 @@ describe SaturnCI::Environment do
 
     it 'returns the pipeline workspace dir it cloned into' do
       expect(environment.clone_repo).to eq('/pipeline-workspaces/root123')
+    end
+
+    it 'raises when the cloned content is not readable at the destination' do
+      allow(Dir).to receive(:exist?).with('/pipeline-workspaces/root123').and_return(false)
+
+      expect { environment.clone_repo }.to raise_error(
+        %r{pipeline workspace not readable.*/pipeline-workspaces/root123}
+      )
+    end
+
+    it 'raises when the destination is empty after cloning' do
+      allow(Dir).to receive(:empty?).with('/pipeline-workspaces/root123').and_return(true)
+
+      expect { environment.clone_repo }.to raise_error(
+        %r{pipeline workspace not readable.*/pipeline-workspaces/root123}
+      )
     end
   end
 end
