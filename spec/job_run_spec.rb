@@ -20,6 +20,17 @@ describe SaturnCI::JobRun do
       expect(job_run.branch_name).to eq('main')
     end
 
+    it 'exposes the root job run id' do
+      client = SaturnCI::Client.new(double(api_token: 'x'))
+
+      stub_request(:get, 'https://app.saturnci.com/api/v1/job_runs/abc123')
+        .to_return(status: 200, body: '{"id": "abc123", "root_job_run_id": "root123"}')
+
+      job_run = SaturnCI::JobRun.find(client: client, id: 'abc123')
+
+      expect(job_run.root_job_run_id).to eq('root123')
+    end
+
     it 'exposes the repository github metadata' do
       client = SaturnCI::Client.new(double(api_token: 'x'))
 

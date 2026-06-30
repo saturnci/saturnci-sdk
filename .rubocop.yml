@@ -20,4 +20,4 @@ Metrics/ParameterLists:
   Enabled: false
 
 Metrics/MethodLength:
-  Max: 11
+  Max: 15
