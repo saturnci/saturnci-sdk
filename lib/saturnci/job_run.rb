@@ -7,10 +7,10 @@ module SaturnCI
   class JobRun
     TERMINAL_STATUSES = ['Passed', 'Failed', 'Cancelled', 'Timed Out'].freeze
 
-    attr_reader :id, :url, :status, :parent_job_run_id, :job_name, :branch_name, :params
+    attr_reader :id, :url, :status, :parent_job_run_id, :job_name, :branch_name, :params, :repository
 
     def initialize(id:, client:, url: nil, parent_job_run_id: nil, job_name: nil, status: nil, branch_name: nil,
-                   params: nil)
+                   params: nil, repository: nil)
       @id = id
       @client = client
       @url = url
@@ -19,6 +19,7 @@ module SaturnCI
       @status = status
       @branch_name = branch_name
       @params = params
+      @repository = repository
     end
 
     def self.find(client:, id:)
@@ -30,7 +31,17 @@ module SaturnCI
         status: body['status'],
         branch_name: body['branch_name'],
         parent_job_run_id: body['parent_job_run_id'],
-        params: body['params']
+        params: body['params'],
+        repository: repository_from(body['repository'])
+      )
+    end
+
+    def self.repository_from(attributes)
+      return unless attributes
+
+      Repository.new(
+        github_repo_full_name: attributes['github_repo_full_name'],
+        github_installation_id: attributes['github_installation_id']
       )
     end
 
