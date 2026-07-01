@@ -37,6 +37,17 @@ describe SaturnCI::Environment do
     end
   end
 
+  describe '#copy' do
+    it 'copies the contents of the source into the destination' do
+      shell = spy('shell')
+      environment = SaturnCI::Environment.new(job_run: double, client: double, shell: shell)
+
+      environment.copy('/pipeline-workspaces/root123', '/repository')
+
+      expect(shell).to have_received(:execute).with('cp -a /pipeline-workspaces/root123/. /repository/')
+    end
+  end
+
   describe '#clone_repo' do
     let(:client) { SaturnCI::Client.new(double(api_token: 'x')) }
     let(:repository) do

@@ -19,6 +19,10 @@ module SaturnCI
       File.exist?(path)
     end
 
+    def copy(source, destination)
+      @shell.execute("cp -a #{source}/. #{destination}/")
+    end
+
     def clone_repo
       token_url = "https://x-access-token:#{github_token}@github.com/"
       pipeline_workspace_dir = @job_run.pipeline_workspace_dir
