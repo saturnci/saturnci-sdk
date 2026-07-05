@@ -49,6 +49,21 @@ describe SaturnCI::Client do
   end
 
   describe '#post' do
+    it 'sends the params as a JSON body' do
+      client = SaturnCI::Client.new(double(api_token: 'x'))
+
+      stub = stub_request(:post, 'https://app.saturnci.com/api/v1/test_suite_runs')
+             .with(
+               body: { value: [{ job_name: 'deploy' }] }.to_json,
+               headers: { 'Content-Type' => 'application/json' }
+             )
+             .to_return(status: 201)
+
+      client.post('/api/v1/test_suite_runs', value: [{ job_name: 'deploy' }])
+
+      expect(stub).to have_been_requested
+    end
+
     context 'when the API responds with a non-2xx status' do
       it 'raises SaturnCI::InvalidRequestError' do
         client = SaturnCI::Client.new(double(api_token: 'x'))
