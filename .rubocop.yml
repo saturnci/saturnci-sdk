@@ -21,3 +21,6 @@ Metrics/ParameterLists:
 
 Metrics/MethodLength:
   Max: 15
+
+Lint/EmptyClass:
+  AllowComments: true

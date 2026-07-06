@@ -1,0 +1,20 @@
+services:
+  job:
+    build:
+      context: ../../..
+      dockerfile: .saturnci/environments/default/Dockerfile
+    volumes:
+      - ../../../:/app
+      - pipeline-workspaces:/pipeline-workspaces
+    working_dir: /app
+
+volumes:
+  pipeline-workspaces:
+    driver: local
+    driver_opts:
+      type: nfs
+      # nfs-server Service ClusterIP, pinned in the saturnci repo at
+      # ops/workers/pulsar/k8s/nfs-server/service.yaml. The node docker daemon
+      # can't resolve cluster DNS, so it mounts by IP.
+      o: addr=10.43.185.120,nfsvers=4
+      device: ":/pipeline-workspaces"

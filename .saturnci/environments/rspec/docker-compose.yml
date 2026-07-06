@@ -5,7 +5,7 @@ services:
     image: ${SATURN_TEST_APP_IMAGE_URL}
     build:
       context: ../../..
-      dockerfile: .saturnci/jobs/test_suite/Dockerfile
+      dockerfile: .saturnci/environments/rspec/Dockerfile
     volumes:
       - ../../../:/app
     env_file:
