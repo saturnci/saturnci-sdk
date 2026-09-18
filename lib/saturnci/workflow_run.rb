@@ -4,16 +4,31 @@ require 'json'
 
 module SaturnCI
   class WorkflowRun
-    attr_reader :id
+    attr_reader :id, :branch_name, :commit_hash, :commit_message, :author_name,
+                :repository_full_name
 
-    def initialize(id:, client:)
+    def initialize(id:, client:, branch_name: nil, commit_hash: nil, commit_message: nil,
+                   author_name: nil, repository_full_name: nil)
       @id = id
       @client = client
+      @branch_name = branch_name
+      @commit_hash = commit_hash
+      @commit_message = commit_message
+      @author_name = author_name
+      @repository_full_name = repository_full_name
     end
 
     def self.find(client:, id:)
       body = JSON.parse(client.get("/api/v1/workflow_runs/#{id}").body)
-      new(id: body['id'], client: client)
+      new(
+        id: body['id'],
+        client: client,
+        branch_name: body['branch_name'],
+        commit_hash: body['commit_hash'],
+        commit_message: body['commit_message'],
+        author_name: body['author_name'],
+        repository_full_name: body['repository_full_name']
+      )
     end
   end
 end
