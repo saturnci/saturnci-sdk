@@ -18,6 +18,10 @@ module SaturnCI
       @repository_full_name = repository_full_name
     end
 
+    def job_runs
+      JobRuns.new(workflow_run: self, client: @client)
+    end
+
     def self.find(client:, id:)
       body = JSON.parse(client.get("/api/v1/workflow_runs/#{id}").body)
       new(
