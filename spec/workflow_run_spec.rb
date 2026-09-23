@@ -61,4 +61,32 @@ describe SaturnCI::WorkflowRun do
       end
     end
   end
+
+  describe '#test_suite_runs' do
+    describe '#create' do
+      it "posts a test suite run with the workflow run's repository, git metadata, and id" do
+        client = SaturnCI::Client.new(double(api_token: 'x'))
+        workflow_run = SaturnCI::WorkflowRun.new(
+          id: 'workflow123',
+          client: client,
+          branch_name: 'main',
+          commit_hash: 'abc123',
+          commit_message: 'commit message',
+          author_name: 'author name',
+          repository_full_name: 'saturnci/saturnci'
+        )
+
+        create_request = stub_request(:post, 'https://app.saturnci.com/api/v1/test_suite_runs')
+                         .with(body: { repository: 'saturnci/saturnci', job_name: 'test_suite',
+                                       branch_name: 'main', commit_hash: 'abc123',
+                                       commit_message: 'commit message', author_name: 'author name',
+                                       workflow_run_id: 'workflow123' })
+                         .to_return(status: 201, body: '{"id": "tsr123"}')
+
+        workflow_run.test_suite_runs.create(job_name: 'test_suite')
+
+        expect(create_request).to have_been_requested
+      end
+    end
+  end
 end
