@@ -112,6 +112,17 @@ describe SaturnCI::JobRun do
 
       expect(job_run.parent_job_run_id).to eq('parent123')
     end
+
+    it 'exposes the status from the response' do
+      client = SaturnCI::Client.new(double(api_token: 'x'))
+
+      stub_request(:post, 'https://app.saturnci.com/api/v1/job_runs')
+        .to_return(status: 201, body: '{"id": "abc123", "status": "Passed"}')
+
+      job_run = SaturnCI::JobRun.create(client: client, repository: 'saturnci/saturnci', job_name: 'deploy')
+
+      expect(job_run.status).to eq('Passed')
+    end
   end
 
   describe '.list' do

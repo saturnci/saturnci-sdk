@@ -65,9 +65,20 @@ module SaturnCI
     end
 
     def self.create(client:, repository:, job_name:, **params)
-      response = client.post('/api/v1/job_runs', { repository: repository, job_name: job_name }.merge(params))
+      response = client.post(
+        '/api/v1/job_runs',
+        { repository: repository, job_name: job_name }.merge(params)
+      )
+
       body = JSON.parse(response.body)
-      new(id: body['id'], client: client, url: body['url'], parent_job_run_id: body['parent_job_run_id'])
+
+      new(
+        id: body['id'],
+        client: client,
+        url: body['url'],
+        status: body['status'],
+        parent_job_run_id: body['parent_job_run_id']
+      )
     end
 
     def wait_for_completion
