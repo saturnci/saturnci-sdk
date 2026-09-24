@@ -5,6 +5,18 @@ require 'webmock/rspec'
 require 'spec_helper'
 
 describe SaturnCI::TestSuiteRun do
+  describe '.find' do
+    it 'fetches the test suite run' do
+      stub_request(:get, 'https://app.saturnci.com/api/v1/test_suite_runs/abc123')
+        .to_return(status: 200, body: '{"id": "abc123", "status": "Passed"}')
+
+      client = SaturnCI::Client.new(TestHelpers.credentials)
+      test_suite_run = SaturnCI::TestSuiteRun.find(client: client, id: 'abc123')
+
+      expect(test_suite_run.status).to eq('Passed')
+    end
+  end
+
   describe '.create' do
     it 'posts to the test suite runs endpoint and returns a test suite run with an id' do
       stub_request(:post, 'https://app.saturnci.com/api/v1/test_suite_runs')

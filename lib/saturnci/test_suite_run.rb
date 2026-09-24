@@ -9,11 +9,17 @@ module SaturnCI
 
     attr_reader :id, :url, :status, :parent_job_run_id
 
-    def initialize(id:, client:, url: nil, parent_job_run_id: nil)
+    def initialize(id:, client:, url: nil, status: nil, parent_job_run_id: nil)
       @id = id
       @client = client
       @url = url
+      @status = status
       @parent_job_run_id = parent_job_run_id
+    end
+
+    def self.find(client:, id:)
+      body = JSON.parse(client.get("/api/v1/test_suite_runs/#{id}").body)
+      new(id: body['id'], client: client, status: body['status'])
     end
 
     def self.list(client:, commit_hash:)
