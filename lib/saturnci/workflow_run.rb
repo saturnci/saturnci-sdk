@@ -26,6 +26,10 @@ module SaturnCI
       TestSuiteRuns.new(workflow_run: self, client: @client)
     end
 
+    def finish
+      @client.post("/api/v1/workflow_runs/#{id}/finished_events", {})
+    end
+
     def self.find(client:, id:)
       body = JSON.parse(client.get("/api/v1/workflow_runs/#{id}").body)
       new(

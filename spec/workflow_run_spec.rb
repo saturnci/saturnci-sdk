@@ -62,6 +62,20 @@ describe SaturnCI::WorkflowRun do
     end
   end
 
+  describe '#finish' do
+    it 'records that the workflow run finished' do
+      client = SaturnCI::Client.new(double(api_token: 'x'))
+      workflow_run = SaturnCI::WorkflowRun.new(id: 'workflow123', client: client)
+
+      finish_request = stub_request(:post, 'https://app.saturnci.com/api/v1/workflow_runs/workflow123/finished_events')
+                       .to_return(status: 201)
+
+      workflow_run.finish
+
+      expect(finish_request).to have_been_requested
+    end
+  end
+
   describe '#test_suite_runs' do
     describe '#create' do
       it "posts a test suite run with the workflow run's repository, git metadata, and id" do
