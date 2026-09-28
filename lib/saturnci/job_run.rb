@@ -61,7 +61,9 @@ module SaturnCI
       params[:status] = status if status
       query = URI.encode_www_form(params)
       response = client.get("/api/v1/job_runs?#{query}")
-      JSON.parse(response.body).map { |job_run| new(id: job_run['id'], client: client) }
+      JSON.parse(response.body).map do |job_run|
+        new(id: job_run['id'], client: client, status: job_run['status'])
+      end
     end
 
     def self.create(client:, repository:, job_name:, **params)

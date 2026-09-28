@@ -155,6 +155,17 @@ describe SaturnCI::JobRun do
       expect(job_runs.map(&:id)).to contain_exactly('deploy-id')
     end
 
+    it 'exposes the status of each job run' do
+      client = SaturnCI::Client.new(double(api_token: 'x'))
+
+      stub_request(:get, 'https://app.saturnci.com/api/v1/job_runs?job_name=deploy')
+        .to_return(status: 200, body: '[{"id": "deploy-id", "status": "Passed"}]')
+
+      job_runs = SaturnCI::JobRun.list(client: client, job_name: 'deploy')
+
+      expect(job_runs.map(&:status)).to contain_exactly('Passed')
+    end
+
     it 'passes status through to the API' do
       client = SaturnCI::Client.new(double(api_token: 'x'))
 
