@@ -52,6 +52,10 @@ module SaturnCI
       @client.patch("/api/v1/job_runs/#{@id}", params)
     end
 
+    def start
+      @client.post("/api/v1/job_runs/#{@id}/start", {})
+    end
+
     def environment
       Environment.new(job_run: self, client: @client)
     end

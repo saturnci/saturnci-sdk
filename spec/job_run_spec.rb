@@ -204,6 +204,20 @@ describe SaturnCI::JobRun do
     end
   end
 
+  describe '#start' do
+    it 'starts the job run' do
+      client = SaturnCI::Client.new(double(api_token: 'x'))
+      job_run = SaturnCI::JobRun.new(id: 'jobrun123', client: client)
+
+      start_request = stub_request(:post, 'https://app.saturnci.com/api/v1/job_runs/jobrun123/start')
+                      .to_return(status: 201)
+
+      job_run.start
+
+      expect(start_request).to have_been_requested
+    end
+  end
+
   describe '#wait_for_completion' do
     it 'polls until the job run is finished and returns the response' do
       running_response = double(body: '{"status": "Running"}')
