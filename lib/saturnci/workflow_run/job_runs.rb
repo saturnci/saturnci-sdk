@@ -8,6 +8,14 @@ module SaturnCI
         @client = client
       end
 
+      def list(job_name:)
+        JobRun.list(
+          client: @client,
+          job_name: job_name,
+          workflow_run_id: @workflow_run.id
+        )
+      end
+
       def create(job_name:, **params)
         JobRun.create(
           client: @client,

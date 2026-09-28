@@ -60,6 +60,21 @@ describe SaturnCI::WorkflowRun do
         expect(job_run.id).to eq('jobrun123')
       end
     end
+
+    describe '#list' do
+      it "returns the workflow run's job runs with the given job name" do
+        client = SaturnCI::Client.new(double(api_token: 'x'))
+        workflow_run = SaturnCI::WorkflowRun.new(id: 'workflow123', client: client)
+
+        stub_request(:get,
+                     'https://app.saturnci.com/api/v1/job_runs?job_name=clone_repo&workflow_run_id=workflow123')
+          .to_return(status: 200, body: '[{"id": "jobrun123"}]')
+
+        job_runs = workflow_run.job_runs.list(job_name: 'clone_repo')
+
+        expect(job_runs.map(&:id)).to contain_exactly('jobrun123')
+      end
+    end
   end
 
   describe '#finish' do

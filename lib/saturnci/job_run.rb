@@ -56,9 +56,10 @@ module SaturnCI
       Environment.new(job_run: self, client: @client)
     end
 
-    def self.list(client:, job_name:, status: nil)
+    def self.list(client:, job_name:, status: nil, workflow_run_id: nil)
       params = { job_name: job_name }
       params[:status] = status if status
+      params[:workflow_run_id] = workflow_run_id if workflow_run_id
       query = URI.encode_www_form(params)
       response = client.get("/api/v1/job_runs?#{query}")
       JSON.parse(response.body).map do |job_run|

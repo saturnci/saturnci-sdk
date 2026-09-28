@@ -191,6 +191,19 @@ describe SaturnCI::JobRun do
     end
   end
 
+  describe '.list' do
+    it 'returns only job runs belonging to the given workflow run' do
+      client = SaturnCI::Client.new(double(api_token: 'x'))
+
+      stub_request(:get, 'https://app.saturnci.com/api/v1/job_runs?job_name=deploy&workflow_run_id=workflow123')
+        .to_return(status: 200, body: '[{"id": "in-workflow-id"}]')
+
+      job_runs = SaturnCI::JobRun.list(client: client, job_name: 'deploy', workflow_run_id: 'workflow123')
+
+      expect(job_runs.map(&:id)).to contain_exactly('in-workflow-id')
+    end
+  end
+
   describe '#wait_for_completion' do
     it 'polls until the job run is finished and returns the response' do
       running_response = double(body: '{"status": "Running"}')
