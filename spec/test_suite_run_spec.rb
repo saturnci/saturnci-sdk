@@ -147,6 +147,20 @@ describe SaturnCI::TestSuiteRun do
     end
   end
 
+  describe '#start' do
+    it 'starts the test suite run' do
+      client = SaturnCI::Client.new(double(api_token: 'x'))
+      test_suite_run = SaturnCI::TestSuiteRun.new(id: 'tsr123', client: client)
+
+      start_request = stub_request(:post, 'https://app.saturnci.com/api/v1/test_suite_runs/tsr123/start')
+                      .to_return(status: 201)
+
+      test_suite_run.start
+
+      expect(start_request).to have_been_requested
+    end
+  end
+
   describe '.list' do
     it 'returns test suite runs matching the given commit hash' do
       client = SaturnCI::Client.new(double(api_token: 'x'))

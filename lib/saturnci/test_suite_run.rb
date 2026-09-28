@@ -35,6 +35,10 @@ module SaturnCI
       new(id: body['id'], client: client, url: body['url'], parent_job_run_id: body['parent_job_run_id'])
     end
 
+    def start
+      @client.post("/api/v1/test_suite_runs/#{@id}/start", {})
+    end
+
     def wait_for_completion
       loop do
         response = JSON.parse(@client.get("/api/v1/test_suite_runs/#{@id}").body)
