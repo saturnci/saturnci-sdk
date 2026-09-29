@@ -48,6 +48,35 @@ describe SaturnCI::Client do
     end
   end
 
+  describe '#assert_version!' do
+    context 'when the installed version satisfies the requirement' do
+      it 'does not raise' do
+        client = SaturnCI::Client.new(double(api_token: 'x'))
+
+        expect { client.assert_version!(SaturnCI::VERSION) }.not_to raise_error
+      end
+    end
+
+    context 'when the installed version does not satisfy the requirement' do
+      it 'raises a version mismatch error' do
+        client = SaturnCI::Client.new(double(api_token: 'x'))
+
+        expect { client.assert_version!('99.0.0') }.to raise_error(
+          SaturnCI::VersionMismatchError,
+          /saturnci-sdk 99\.0\.0 is required/
+        )
+      end
+    end
+
+    context 'when the requirement is pessimistic' do
+      it 'does not raise for a compatible version' do
+        client = SaturnCI::Client.new(double(api_token: 'x'))
+
+        expect { client.assert_version!('~> 0.13') }.not_to raise_error
+      end
+    end
+  end
+
   describe '#post' do
     it 'sends the params as a JSON body' do
       client = SaturnCI::Client.new(double(api_token: 'x'))
