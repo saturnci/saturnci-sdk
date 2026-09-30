@@ -98,6 +98,21 @@ describe '.saturnci/workflows/default_workflow.rb' do
     end
 
     context 'and the test_suite run has passed' do
+      it 'creates a workflow environment image build job run' do
+        default_workflow = DefaultWorkflow.new(env: env)
+        allow(default_workflow).to receive(:workflow_run).and_return(workflow_run)
+        allow(default_workflow).to receive(:test_suite_run_status).and_return('Passed')
+        allow(workflow_run).to receive(:finish)
+
+        default_workflow.perform(io: StringIO.new)
+
+        expect(job_runs).to have_received(:create).with(
+          job_name: 'workflow_environment_image_build',
+          task_adapter_name: 'shell',
+          idempotent: true
+        )
+      end
+
       it 'finishes the workflow run' do
         allow(workflow_run).to receive(:finish)
 
@@ -112,6 +127,20 @@ describe '.saturnci/workflows/default_workflow.rb' do
     end
 
     context 'and the test_suite run is still running' do
+      it 'creates no workflow environment image build job run' do
+        allow(workflow_run).to receive(:finish)
+
+        default_workflow = DefaultWorkflow.new(env: env)
+        allow(default_workflow).to receive(:workflow_run).and_return(workflow_run)
+        allow(default_workflow).to receive(:test_suite_run_status).and_return('Running')
+
+        default_workflow.perform(io: StringIO.new)
+
+        expect(job_runs).not_to have_received(:create).with(
+          hash_including(job_name: 'workflow_environment_image_build')
+        )
+      end
+
       it 'leaves the workflow run unfinished' do
         allow(workflow_run).to receive(:finish)
 

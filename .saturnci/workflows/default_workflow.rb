@@ -10,7 +10,22 @@ class DefaultWorkflow
     return unless clone_repo_job_run.status == 'Passed'
 
     test_suite_run = create_test_suite_run(io)
-    finish(io, test_suite_run_status(test_suite_run.id))
+    test_suite_status = test_suite_run_status(test_suite_run.id)
+
+    create_workflow_environment_image_build_job_run(io) if test_suite_status == 'Passed'
+
+    finish(io, test_suite_status)
+  end
+
+  def create_workflow_environment_image_build_job_run(io)
+    workflow_run.job_runs.create(
+      job_name: 'workflow_environment_image_build',
+      task_adapter_name: 'shell',
+      idempotent: true
+    ).tap do |job_run|
+      job_run.start
+      io.puts "Started workflow_environment_image_build job run: id=#{job_run.id} url=#{job_run.url}"
+    end
   end
 
   def create_clone_repo_job_run(io)

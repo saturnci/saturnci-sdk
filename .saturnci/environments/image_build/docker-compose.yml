@@ -1,0 +1,12 @@
+services:
+  job:
+    build:
+      context: ../../..
+      dockerfile: .saturnci/environments/image_build/Dockerfile
+    volumes:
+      - ../../../:/app
+      - /var/run/saturnci-docker.sock:/var/run/saturnci-docker.sock
+    working_dir: /app
+    environment:
+      DOCKER_HOST: unix:///var/run/saturnci-docker.sock
+      DOCKER_API_VERSION: "1.43"
