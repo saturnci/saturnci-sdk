@@ -20,6 +20,7 @@ class DefaultWorkflow
       idempotent: true
     ).tap do |job_run|
       io.puts "Created clone_repo job run: id=#{job_run.id} url=#{job_run.url}"
+      job_run.start
       io.puts "Not starting a test_suite run: clone_repo status is #{job_run.status}" unless job_run.status == 'Passed'
     end
   end

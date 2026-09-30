@@ -25,7 +25,8 @@ describe '.saturnci/workflows/default_workflow.rb' do
   end
 
   it 'creates a clone_repo job run' do
-    job_run = double('job_run', id: 'job123', url: 'https://example.com/job123', status: 'Running')
+    job_run = double('job_run', id: 'job123', url: 'https://example.com/job123', status: 'Running',
+                                start: nil)
     allow(job_runs).to receive(:create).and_return(job_run)
 
     default_workflow = DefaultWorkflow.new(env: env)
@@ -40,12 +41,26 @@ describe '.saturnci/workflows/default_workflow.rb' do
     )
   end
 
+  it 'starts the clone_repo job run it created' do
+    job_run = double('job_run', id: 'job123', url: 'https://example.com/job123',
+                                status: 'Not Started', start: nil)
+    allow(job_runs).to receive(:create).and_return(job_run)
+
+    default_workflow = DefaultWorkflow.new(env: env)
+    allow(default_workflow).to receive(:workflow_run).and_return(workflow_run)
+
+    default_workflow.perform(io: StringIO.new)
+
+    expect(job_run).to have_received(:start)
+  end
+
   context 'when the clone_repo job run has passed' do
     let!(:test_suite_runs) { double('test_suite_runs') }
 
     before do
       allow(job_runs).to receive(:create).and_return(
-        double('job_run', id: 'job123', url: 'https://example.com/job123', status: 'Passed')
+        double('job_run', id: 'job123', url: 'https://example.com/job123', status: 'Passed',
+                          start: nil)
       )
       allow(workflow_run).to receive(:test_suite_runs).and_return(test_suite_runs)
       allow(test_suite_runs).to receive(:create).and_return(
