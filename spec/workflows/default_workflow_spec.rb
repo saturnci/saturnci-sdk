@@ -64,7 +64,7 @@ describe '.saturnci/workflows/default_workflow.rb' do
       )
       allow(workflow_run).to receive(:test_suite_runs).and_return(test_suite_runs)
       allow(test_suite_runs).to receive(:create).and_return(
-        double('test_suite_run', id: 'tsr123', url: 'https://example.com/tsr123')
+        double('test_suite_run', id: 'tsr123', url: 'https://example.com/tsr123', start: nil)
       )
     end
 
@@ -81,6 +81,20 @@ describe '.saturnci/workflows/default_workflow.rb' do
         task_adapter_version: '2',
         idempotent: true
       )
+    end
+
+    it 'starts the test_suite run it created' do
+      test_suite_run = double('test_suite_run', id: 'tsr123', url: 'https://example.com/tsr123',
+                                                start: nil)
+      allow(test_suite_runs).to receive(:create).and_return(test_suite_run)
+
+      default_workflow = DefaultWorkflow.new(env: env)
+      allow(default_workflow).to receive(:workflow_run).and_return(workflow_run)
+      allow(default_workflow).to receive(:test_suite_run_status).and_return('Running')
+
+      default_workflow.perform(io: StringIO.new)
+
+      expect(test_suite_run).to have_received(:start)
     end
 
     context 'and the test_suite run has passed' do

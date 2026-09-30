@@ -32,6 +32,7 @@ class DefaultWorkflow
       task_adapter_version: '2',
       idempotent: true
     ).tap do |test_suite_run|
+      test_suite_run.start
       io.puts "Started test_suite run: id=#{test_suite_run.id} url=#{test_suite_run.url}"
     end
   end
