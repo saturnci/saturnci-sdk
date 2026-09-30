@@ -17,11 +17,11 @@ describe WorkflowEnvironmentImageBuild do
 
   context 'when the version has not been published yet' do
     it 'pushes an image tagged with the version' do
-      shell = FakeShell.new(tag_exists: false)
+      shell = double('shell', run: true, tag_exists?: false)
 
       WorkflowEnvironmentImageBuild.new(env: env, shell: shell, version: '1.0.0', io: StringIO.new).perform
 
-      expect(shell.commands).to include(
+      expect(shell).to have_received(:run).with(
         a_string_including('docker push registry.example.com/saturnci/workflow-environment:v1.0.0')
       )
     end
@@ -29,28 +29,11 @@ describe WorkflowEnvironmentImageBuild do
 
   context 'when the version has already been published' do
     it 'pushes nothing' do
-      shell = FakeShell.new(tag_exists: true)
+      shell = double('shell', run: true, tag_exists?: true)
 
       WorkflowEnvironmentImageBuild.new(env: env, shell: shell, version: '1.0.0', io: StringIO.new).perform
 
-      expect(shell.commands).not_to include(a_string_including('docker push'))
+      expect(shell).not_to have_received(:run).with(a_string_including('docker push'))
     end
-  end
-end
-
-class FakeShell
-  attr_reader :commands
-
-  def initialize(tag_exists:)
-    @tag_exists = tag_exists
-    @commands = []
-  end
-
-  def run(command)
-    @commands << command
-  end
-
-  def tag_exists?(_image_url)
-    @tag_exists
   end
 end
