@@ -13,7 +13,7 @@ describe SaturnCI::TestSuiteRun do
       client = SaturnCI::Client.new(TestHelpers.credentials)
       test_suite_run = SaturnCI::TestSuiteRun.find(client: client, id: 'abc123')
 
-      expect(test_suite_run.status).to eq('Passed')
+      expect(test_suite_run.status).to eq(:passed)
     end
   end
 

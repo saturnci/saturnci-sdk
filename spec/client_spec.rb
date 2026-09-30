@@ -71,8 +71,9 @@ describe SaturnCI::Client do
     context 'when the requirement is pessimistic' do
       it 'does not raise for a compatible version' do
         client = SaturnCI::Client.new(double(api_token: 'x'))
+        compatible = "~> #{Gem::Version.new(SaturnCI::VERSION).segments.first(2).join('.')}"
 
-        expect { client.assert_version!('~> 0.13') }.not_to raise_error
+        expect { client.assert_version!(compatible) }.not_to raise_error
       end
     end
   end

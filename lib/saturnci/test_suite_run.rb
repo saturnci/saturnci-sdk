@@ -5,7 +5,7 @@ require 'uri'
 
 module SaturnCI
   class TestSuiteRun
-    TERMINAL_STATUSES = ['Passed', 'Failed', 'Cancelled', 'Timed Out'].freeze
+    TERMINAL_STATUSES = %i[passed failed cancelled timed_out].freeze
 
     attr_reader :id, :url, :status, :parent_job_run_id
 
@@ -13,7 +13,7 @@ module SaturnCI
       @id = id
       @client = client
       @url = url
-      @status = status
+      @status = Status.from_api(status)
       @parent_job_run_id = parent_job_run_id
     end
 
@@ -42,8 +42,8 @@ module SaturnCI
     def wait_for_completion
       loop do
         response = JSON.parse(@client.get("/api/v1/test_suite_runs/#{@id}").body)
-        if TERMINAL_STATUSES.include?(response['status'])
-          @status = response['status']
+        if TERMINAL_STATUSES.include?(Status.from_api(response['status']))
+          @status = Status.from_api(response['status'])
           return response
         end
 

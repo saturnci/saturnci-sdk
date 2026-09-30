@@ -5,7 +5,7 @@ require 'uri'
 
 module SaturnCI
   class JobRun
-    TERMINAL_STATUSES = ['Passed', 'Failed', 'Cancelled', 'Timed Out'].freeze
+    TERMINAL_STATUSES = %i[passed failed cancelled timed_out].freeze
 
     attr_reader :id, :url, :status, :parent_job_run_id, :pipeline_workspace_dir, :job_name,
                 :branch_name, :params, :repository
@@ -18,7 +18,7 @@ module SaturnCI
       @parent_job_run_id = parent_job_run_id
       @pipeline_workspace_dir = pipeline_workspace_dir
       @job_name = job_name
-      @status = status
+      @status = Status.from_api(status)
       @branch_name = branch_name
       @params = params
       @repository = repository
@@ -91,8 +91,8 @@ module SaturnCI
     def wait_for_completion
       loop do
         response = JSON.parse(@client.get("/api/v1/job_runs/#{@id}").body)
-        if TERMINAL_STATUSES.include?(response['status'])
-          @status = response['status']
+        if TERMINAL_STATUSES.include?(Status.from_api(response['status']))
+          @status = Status.from_api(response['status'])
           return response
         end
 

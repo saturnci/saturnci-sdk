@@ -16,7 +16,7 @@ describe SaturnCI::JobRun do
       job_run = SaturnCI::JobRun.find(client: client, id: 'abc123')
 
       expect(job_run.job_name).to eq('github_push')
-      expect(job_run.status).to eq('Passed')
+      expect(job_run.status).to eq(:passed)
       expect(job_run.branch_name).to eq('main')
     end
 
@@ -121,7 +121,7 @@ describe SaturnCI::JobRun do
 
       job_run = SaturnCI::JobRun.create(client: client, repository: 'saturnci/saturnci', job_name: 'deploy')
 
-      expect(job_run.status).to eq('Passed')
+      expect(job_run.status).to eq(:passed)
     end
   end
 
@@ -163,7 +163,7 @@ describe SaturnCI::JobRun do
 
       job_runs = SaturnCI::JobRun.list(client: client, job_name: 'deploy')
 
-      expect(job_runs.map(&:status)).to contain_exactly('Passed')
+      expect(job_runs.map(&:status)).to contain_exactly(:passed)
     end
 
     it 'passes status through to the API' do
@@ -232,7 +232,7 @@ describe SaturnCI::JobRun do
 
       job_run.wait_for_completion
 
-      expect(job_run.status).to eq('Passed')
+      expect(job_run.status).to eq(:passed)
     end
 
     it 'treats a timed-out job run as finished' do
@@ -246,7 +246,7 @@ describe SaturnCI::JobRun do
 
       job_run.wait_for_completion
 
-      expect(job_run.status).to eq('Timed Out')
+      expect(job_run.status).to eq(:timed_out)
     end
   end
 
