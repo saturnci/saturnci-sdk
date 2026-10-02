@@ -5,6 +5,8 @@ require 'uri'
 
 module SaturnCI
   class JobRun
+    include Status
+
     TERMINAL_STATUSES = ['Passed', 'Failed', 'Cancelled', 'Timed Out'].freeze
 
     attr_reader :id, :url, :status, :parent_job_run_id, :pipeline_workspace_dir, :job_name,

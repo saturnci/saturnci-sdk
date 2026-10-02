@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'saturnci/version'
+require_relative 'saturnci/status'
 require_relative 'saturnci/credentials'
 require_relative 'saturnci/invalid_request_error'
 require_relative 'saturnci/version_mismatch_error'
