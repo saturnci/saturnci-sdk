@@ -22,13 +22,6 @@ module SaturnCI
       false
     end
 
-    def assert_version!(requirement)
-      return if Gem::Requirement.new(requirement).satisfied_by?(Gem::Version.new(SaturnCI::VERSION))
-
-      raise VersionMismatchError,
-            "saturnci-sdk #{requirement} is required, but #{SaturnCI::VERSION} is installed."
-    end
-
     def get(path)
       request(Net::HTTP::Get, path)
     end
