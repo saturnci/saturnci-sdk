@@ -5,6 +5,8 @@ require 'uri'
 
 module SaturnCI
   class TestSuiteRun
+    include Status
+
     TERMINAL_STATUSES = %i[passed failed cancelled timed_out].freeze
 
     attr_reader :id, :url, :status, :parent_job_run_id

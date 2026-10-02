@@ -9,5 +9,13 @@ module SaturnCI
 
       value.to_s.downcase.tr(' ', '_').to_sym
     end
+
+    def passed?
+      Status.from_api(status) == :passed
+    end
+
+    def failed?
+      Status.from_api(status) == :failed
+    end
   end
 end

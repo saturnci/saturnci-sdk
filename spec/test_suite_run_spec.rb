@@ -178,4 +178,32 @@ describe SaturnCI::TestSuiteRun do
                                               ])
     end
   end
+
+  describe '#passed?' do
+    context "when the status is 'Passed'" do
+      it 'is true' do
+        expect(SaturnCI::TestSuiteRun.new(id: 'abc123', client: nil, status: 'Passed').passed?).to be(true)
+      end
+    end
+
+    context "when the status is 'Failed'" do
+      it 'is false' do
+        expect(SaturnCI::TestSuiteRun.new(id: 'abc123', client: nil, status: 'Failed').passed?).to be(false)
+      end
+    end
+  end
+
+  describe '#failed?' do
+    context "when the status is 'Failed'" do
+      it 'is true' do
+        expect(SaturnCI::TestSuiteRun.new(id: 'abc123', client: nil, status: 'Failed').failed?).to be(true)
+      end
+    end
+
+    context "when the status is 'Passed'" do
+      it 'is false' do
+        expect(SaturnCI::TestSuiteRun.new(id: 'abc123', client: nil, status: 'Passed').failed?).to be(false)
+      end
+    end
+  end
 end
