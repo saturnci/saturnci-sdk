@@ -26,7 +26,7 @@ describe '.saturnci/workflows/default_workflow.rb' do
 
   it 'creates a clone_repo job run' do
     job_run = double('job_run', id: 'job123', url: 'https://example.com/job123', status: 'Running',
-                                start: nil)
+                                passed?: false, start: nil)
     allow(job_runs).to receive(:create).and_return(job_run)
 
     default_workflow = DefaultWorkflow.new(env: env)
@@ -43,7 +43,7 @@ describe '.saturnci/workflows/default_workflow.rb' do
 
   it 'starts the clone_repo job run it created' do
     job_run = double('job_run', id: 'job123', url: 'https://example.com/job123',
-                                status: 'Not Started', start: nil)
+                                status: 'Not Started', passed?: false, start: nil)
     allow(job_runs).to receive(:create).and_return(job_run)
 
     default_workflow = DefaultWorkflow.new(env: env)
@@ -60,7 +60,7 @@ describe '.saturnci/workflows/default_workflow.rb' do
     before do
       allow(job_runs).to receive(:create).and_return(
         double('job_run', id: 'job123', url: 'https://example.com/job123', status: 'Passed',
-                          start: nil)
+                          passed?: true, start: nil)
       )
       allow(workflow_run).to receive(:test_suite_runs).and_return(test_suite_runs)
       allow(test_suite_runs).to receive(:create).and_return(
@@ -71,7 +71,8 @@ describe '.saturnci/workflows/default_workflow.rb' do
     it 'starts a test_suite run' do
       default_workflow = DefaultWorkflow.new(env: env)
       allow(default_workflow).to receive(:workflow_run).and_return(workflow_run)
-      allow(default_workflow).to receive(:test_suite_run_status).and_return('Running')
+      allow(default_workflow).to receive(:current_test_suite_run)
+        .and_return(double('test_suite_run', status: 'Running', passed?: false, failed?: false))
 
       default_workflow.perform(io: StringIO.new)
 
@@ -90,7 +91,8 @@ describe '.saturnci/workflows/default_workflow.rb' do
 
       default_workflow = DefaultWorkflow.new(env: env)
       allow(default_workflow).to receive(:workflow_run).and_return(workflow_run)
-      allow(default_workflow).to receive(:test_suite_run_status).and_return('Running')
+      allow(default_workflow).to receive(:current_test_suite_run)
+        .and_return(double('test_suite_run', status: 'Running', passed?: false, failed?: false))
 
       default_workflow.perform(io: StringIO.new)
 
@@ -101,7 +103,8 @@ describe '.saturnci/workflows/default_workflow.rb' do
       it 'creates a workflow environment image build job run' do
         default_workflow = DefaultWorkflow.new(env: env)
         allow(default_workflow).to receive(:workflow_run).and_return(workflow_run)
-        allow(default_workflow).to receive(:test_suite_run_status).and_return('Passed')
+        allow(default_workflow).to receive(:current_test_suite_run)
+          .and_return(double('test_suite_run', status: 'Passed', passed?: true, failed?: false))
         allow(workflow_run).to receive(:finish)
 
         default_workflow.perform(io: StringIO.new)
@@ -118,7 +121,8 @@ describe '.saturnci/workflows/default_workflow.rb' do
 
         default_workflow = DefaultWorkflow.new(env: env)
         allow(default_workflow).to receive(:workflow_run).and_return(workflow_run)
-        allow(default_workflow).to receive(:test_suite_run_status).and_return('Passed')
+        allow(default_workflow).to receive(:current_test_suite_run)
+          .and_return(double('test_suite_run', status: 'Passed', passed?: true, failed?: false))
 
         default_workflow.perform(io: StringIO.new)
 
@@ -132,7 +136,8 @@ describe '.saturnci/workflows/default_workflow.rb' do
 
         default_workflow = DefaultWorkflow.new(env: env)
         allow(default_workflow).to receive(:workflow_run).and_return(workflow_run)
-        allow(default_workflow).to receive(:test_suite_run_status).and_return('Running')
+        allow(default_workflow).to receive(:current_test_suite_run)
+          .and_return(double('test_suite_run', status: 'Running', passed?: false, failed?: false))
 
         default_workflow.perform(io: StringIO.new)
 
@@ -146,7 +151,8 @@ describe '.saturnci/workflows/default_workflow.rb' do
 
         default_workflow = DefaultWorkflow.new(env: env)
         allow(default_workflow).to receive(:workflow_run).and_return(workflow_run)
-        allow(default_workflow).to receive(:test_suite_run_status).and_return('Running')
+        allow(default_workflow).to receive(:current_test_suite_run)
+          .and_return(double('test_suite_run', status: 'Running', passed?: false, failed?: false))
 
         default_workflow.perform(io: StringIO.new)
 

@@ -7,14 +7,13 @@ class DefaultWorkflow
 
   def perform(io: $stdout)
     clone_repo_job_run = create_clone_repo_job_run(io)
-    return unless clone_repo_job_run.status == 'Passed'
+    return unless clone_repo_job_run.passed?
 
-    test_suite_run = create_test_suite_run(io)
-    test_suite_status = test_suite_run_status(test_suite_run.id)
+    test_suite_run = current_test_suite_run(create_test_suite_run(io).id)
 
-    create_workflow_environment_image_build_job_run(io) if test_suite_status == 'Passed'
+    create_workflow_environment_image_build_job_run(io) if test_suite_run.passed?
 
-    finish(io, test_suite_status)
+    finish(io, test_suite_run)
   end
 
   def create_workflow_environment_image_build_job_run(io)
@@ -36,7 +35,7 @@ class DefaultWorkflow
     ).tap do |job_run|
       io.puts "Created clone_repo job run: id=#{job_run.id} url=#{job_run.url}"
       job_run.start
-      io.puts "Not starting a test_suite run: clone_repo status is #{job_run.status}" unless job_run.status == 'Passed'
+      io.puts "Not starting a test_suite run: clone_repo status is #{job_run.status}" unless job_run.passed?
     end
   end
 
@@ -52,9 +51,9 @@ class DefaultWorkflow
     end
   end
 
-  def finish(io, test_suite_status)
-    unless %w[Passed Failed].include?(test_suite_status)
-      io.puts "Not finishing the workflow: test_suite status is #{test_suite_status}"
+  def finish(io, test_suite_run)
+    unless test_suite_run.passed? || test_suite_run.failed?
+      io.puts "Not finishing the workflow: test_suite status is #{test_suite_run.status}"
       return
     end
 
@@ -62,8 +61,8 @@ class DefaultWorkflow
     io.puts 'Workflow finished.'
   end
 
-  def test_suite_run_status(id, client: saturnci_client)
-    SaturnCI::TestSuiteRun.find(client: client, id: id).status
+  def current_test_suite_run(id, client: saturnci_client)
+    SaturnCI::TestSuiteRun.find(client: client, id: id)
   end
 
   def workflow_run(client: saturnci_client)
