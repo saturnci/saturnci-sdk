@@ -36,7 +36,7 @@ Inside the container the environment contains:
 
 ## A minimal workflow
 
-This workflow clones the repository, runs the test suite, and finishes.
+This workflow runs the test suite and finishes.
 
 ```ruby
 # .saturnci/workflows/default_workflow.rb
@@ -47,14 +47,6 @@ class DefaultWorkflow
   end
 
   def perform(io: $stdout)
-    clone_repo_job_run = workflow_run.job_runs.create(
-      job_name: 'clone_repo',
-      task_adapter_name: 'shell',
-      idempotent: true
-    )
-    clone_repo_job_run.start
-    return unless clone_repo_job_run.passed?
-
     test_suite_run = workflow_run.test_suite_runs.create(
       job_name: 'test_suite',
       task_adapter_name: 'rspec',
@@ -86,15 +78,12 @@ DefaultWorkflow.new.perform if $PROGRAM_NAME == __FILE__
 
 Read it as a sequence of evaluations:
 
-1. **On push:** the `clone_repo` job run is created and started. It hasn't
-   passed yet, so the file returns.
-2. **When `clone_repo` finishes:** `create` returns the existing job run, now
-   passed. The test suite run is created and started; it isn't finished yet,
-   so the file returns.
-3. **When the test suite finishes:** both runs already exist; the test suite
-   run has passed or failed, so the workflow run is finished.
+1. **On push:** the test suite run is created and started. It isn't finished
+   yet, so the file returns.
+2. **When the test suite finishes:** `create` returns the existing run, now
+   passed or failed, so the workflow run is finished.
 
-`clone_repo` and `test_suite` are jobs defined in your repository under
+`test_suite` is a job defined in your repository under
 `.saturnci/jobs/`. See [Jobs](https://www.saturnci.com/jobs.html) for how to
 define one and [Environments](https://www.saturnci.com/environments.html) for
 the containers they run in.

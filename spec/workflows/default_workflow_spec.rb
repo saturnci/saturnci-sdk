@@ -24,70 +24,84 @@ describe '.saturnci/workflows/default_workflow.rb' do
     )
   end
 
-  it 'creates a clone_repo job run' do
-    job_run = double('job_run', id: 'job123', url: 'https://example.com/job123', status: 'Running',
-                                passed?: false, start: nil)
-    allow(job_runs).to receive(:create).and_return(job_run)
+  let!(:test_suite_runs) { double('test_suite_runs') }
 
+  before do
+    allow(job_runs).to receive(:create).and_return(
+      double('job_run', id: 'job123', url: 'https://example.com/job123', status: 'Passed',
+                        passed?: true, start: nil)
+    )
+    allow(workflow_run).to receive(:test_suite_runs).and_return(test_suite_runs)
+    allow(test_suite_runs).to receive(:create).and_return(
+      double('test_suite_run', id: 'tsr123', url: 'https://example.com/tsr123', start: nil)
+    )
+  end
+
+  it 'starts a test_suite run' do
     default_workflow = DefaultWorkflow.new(env: env)
     allow(default_workflow).to receive(:workflow_run).and_return(workflow_run)
+    allow(default_workflow).to receive(:current_test_suite_run)
+      .and_return(double('test_suite_run', status: 'Running', passed?: false, failed?: false))
 
     default_workflow.perform(io: StringIO.new)
 
-    expect(job_runs).to have_received(:create).with(
-      job_name: 'clone_repo',
-      task_adapter_name: 'shell',
+    expect(test_suite_runs).to have_received(:create).with(
+      job_name: 'test_suite',
+      task_adapter_name: 'rspec',
+      task_adapter_version: '2',
       idempotent: true
     )
   end
 
-  it 'starts the clone_repo job run it created' do
-    job_run = double('job_run', id: 'job123', url: 'https://example.com/job123',
-                                status: 'Not Started', passed?: false, start: nil)
-    allow(job_runs).to receive(:create).and_return(job_run)
+  it 'starts the test_suite run it created' do
+    test_suite_run = double('test_suite_run', id: 'tsr123', url: 'https://example.com/tsr123',
+                                              start: nil)
+    allow(test_suite_runs).to receive(:create).and_return(test_suite_run)
 
     default_workflow = DefaultWorkflow.new(env: env)
     allow(default_workflow).to receive(:workflow_run).and_return(workflow_run)
+    allow(default_workflow).to receive(:current_test_suite_run)
+      .and_return(double('test_suite_run', status: 'Running', passed?: false, failed?: false))
 
     default_workflow.perform(io: StringIO.new)
 
-    expect(job_run).to have_received(:start)
+    expect(test_suite_run).to have_received(:start)
   end
 
-  context 'when the clone_repo job run has passed' do
-    let!(:test_suite_runs) { double('test_suite_runs') }
-
-    before do
-      allow(job_runs).to receive(:create).and_return(
-        double('job_run', id: 'job123', url: 'https://example.com/job123', status: 'Passed',
-                          passed?: true, start: nil)
-      )
-      allow(workflow_run).to receive(:test_suite_runs).and_return(test_suite_runs)
-      allow(test_suite_runs).to receive(:create).and_return(
-        double('test_suite_run', id: 'tsr123', url: 'https://example.com/tsr123', start: nil)
-      )
-    end
-
-    it 'starts a test_suite run' do
+  context 'when the test_suite run has passed' do
+    it 'creates a workflow environment image build job run' do
       default_workflow = DefaultWorkflow.new(env: env)
       allow(default_workflow).to receive(:workflow_run).and_return(workflow_run)
       allow(default_workflow).to receive(:current_test_suite_run)
-        .and_return(double('test_suite_run', status: 'Running', passed?: false, failed?: false))
+        .and_return(double('test_suite_run', status: 'Passed', passed?: true, failed?: false))
+      allow(workflow_run).to receive(:finish)
 
       default_workflow.perform(io: StringIO.new)
 
-      expect(test_suite_runs).to have_received(:create).with(
-        job_name: 'test_suite',
-        task_adapter_name: 'rspec',
-        task_adapter_version: '2',
+      expect(job_runs).to have_received(:create).with(
+        job_name: 'workflow_environment_image_build',
+        task_adapter_name: 'shell',
         idempotent: true
       )
     end
 
-    it 'starts the test_suite run it created' do
-      test_suite_run = double('test_suite_run', id: 'tsr123', url: 'https://example.com/tsr123',
-                                                start: nil)
-      allow(test_suite_runs).to receive(:create).and_return(test_suite_run)
+    it 'finishes the workflow run' do
+      allow(workflow_run).to receive(:finish)
+
+      default_workflow = DefaultWorkflow.new(env: env)
+      allow(default_workflow).to receive(:workflow_run).and_return(workflow_run)
+      allow(default_workflow).to receive(:current_test_suite_run)
+        .and_return(double('test_suite_run', status: 'Passed', passed?: true, failed?: false))
+
+      default_workflow.perform(io: StringIO.new)
+
+      expect(workflow_run).to have_received(:finish)
+    end
+  end
+
+  context 'when the test_suite run is still running' do
+    it 'creates no workflow environment image build job run' do
+      allow(workflow_run).to receive(:finish)
 
       default_workflow = DefaultWorkflow.new(env: env)
       allow(default_workflow).to receive(:workflow_run).and_return(workflow_run)
@@ -96,68 +110,22 @@ describe '.saturnci/workflows/default_workflow.rb' do
 
       default_workflow.perform(io: StringIO.new)
 
-      expect(test_suite_run).to have_received(:start)
+      expect(job_runs).not_to have_received(:create).with(
+        hash_including(job_name: 'workflow_environment_image_build')
+      )
     end
 
-    context 'and the test_suite run has passed' do
-      it 'creates a workflow environment image build job run' do
-        default_workflow = DefaultWorkflow.new(env: env)
-        allow(default_workflow).to receive(:workflow_run).and_return(workflow_run)
-        allow(default_workflow).to receive(:current_test_suite_run)
-          .and_return(double('test_suite_run', status: 'Passed', passed?: true, failed?: false))
-        allow(workflow_run).to receive(:finish)
+    it 'leaves the workflow run unfinished' do
+      allow(workflow_run).to receive(:finish)
 
-        default_workflow.perform(io: StringIO.new)
+      default_workflow = DefaultWorkflow.new(env: env)
+      allow(default_workflow).to receive(:workflow_run).and_return(workflow_run)
+      allow(default_workflow).to receive(:current_test_suite_run)
+        .and_return(double('test_suite_run', status: 'Running', passed?: false, failed?: false))
 
-        expect(job_runs).to have_received(:create).with(
-          job_name: 'workflow_environment_image_build',
-          task_adapter_name: 'shell',
-          idempotent: true
-        )
-      end
+      default_workflow.perform(io: StringIO.new)
 
-      it 'finishes the workflow run' do
-        allow(workflow_run).to receive(:finish)
-
-        default_workflow = DefaultWorkflow.new(env: env)
-        allow(default_workflow).to receive(:workflow_run).and_return(workflow_run)
-        allow(default_workflow).to receive(:current_test_suite_run)
-          .and_return(double('test_suite_run', status: 'Passed', passed?: true, failed?: false))
-
-        default_workflow.perform(io: StringIO.new)
-
-        expect(workflow_run).to have_received(:finish)
-      end
-    end
-
-    context 'and the test_suite run is still running' do
-      it 'creates no workflow environment image build job run' do
-        allow(workflow_run).to receive(:finish)
-
-        default_workflow = DefaultWorkflow.new(env: env)
-        allow(default_workflow).to receive(:workflow_run).and_return(workflow_run)
-        allow(default_workflow).to receive(:current_test_suite_run)
-          .and_return(double('test_suite_run', status: 'Running', passed?: false, failed?: false))
-
-        default_workflow.perform(io: StringIO.new)
-
-        expect(job_runs).not_to have_received(:create).with(
-          hash_including(job_name: 'workflow_environment_image_build')
-        )
-      end
-
-      it 'leaves the workflow run unfinished' do
-        allow(workflow_run).to receive(:finish)
-
-        default_workflow = DefaultWorkflow.new(env: env)
-        allow(default_workflow).to receive(:workflow_run).and_return(workflow_run)
-        allow(default_workflow).to receive(:current_test_suite_run)
-          .and_return(double('test_suite_run', status: 'Running', passed?: false, failed?: false))
-
-        default_workflow.perform(io: StringIO.new)
-
-        expect(workflow_run).not_to have_received(:finish)
-      end
+      expect(workflow_run).not_to have_received(:finish)
     end
   end
 end

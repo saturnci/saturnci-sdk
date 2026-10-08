@@ -6,9 +6,6 @@ class DefaultWorkflow
   end
 
   def perform(io: $stdout)
-    clone_repo_job_run = create_clone_repo_job_run(io)
-    return unless clone_repo_job_run.passed?
-
     test_suite_run = current_test_suite_run(create_test_suite_run(io).id)
 
     create_workflow_environment_image_build_job_run(io) if test_suite_run.passed?
@@ -24,18 +21,6 @@ class DefaultWorkflow
     ).tap do |job_run|
       job_run.start
       io.puts "Started workflow_environment_image_build job run: id=#{job_run.id} url=#{job_run.url}"
-    end
-  end
-
-  def create_clone_repo_job_run(io)
-    workflow_run.job_runs.create(
-      job_name: 'clone_repo',
-      task_adapter_name: 'shell',
-      idempotent: true
-    ).tap do |job_run|
-      io.puts "Created clone_repo job run: id=#{job_run.id} url=#{job_run.url}"
-      job_run.start
-      io.puts "Not starting a test_suite run: clone_repo status is #{job_run.status}" unless job_run.passed?
     end
   end
 
