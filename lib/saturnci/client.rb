@@ -23,32 +23,41 @@ module SaturnCI
     end
 
     def get(path)
-      request(Net::HTTP::Get, path)
+      request(Net::HTTP::Get.new(uri(path)))
     end
 
     def post(path, params = {})
-      request(Net::HTTP::Post, path, params)
+      request(Net::HTTP::Post.new(uri(path)), params)
     end
 
     def patch(path, params = {})
-      request(Net::HTTP::Patch, path, params)
+      request(Net::HTTP::Patch.new(uri(path)), params)
     end
 
     def delete(path)
-      request(Net::HTTP::Delete, path)
+      request(Net::HTTP::Delete.new(uri(path)))
     end
 
     private
 
-    def request(method_class, path, params = nil)
-      uri = URI("#{@base_url}#{path}")
-      req = method_class.new(uri)
-      req['Authorization'] = "Bearer #{@api_token}"
+    def uri(path)
+      URI("#{@base_url}#{path}")
+    end
+
+    def request(http_request, params = nil)
+      http_request['Authorization'] = "Bearer #{@api_token}"
       if params
-        req['Content-Type'] = 'application/json'
-        req.body = params.to_json
+        http_request['Content-Type'] = 'application/json'
+        http_request.body = params.to_json
       end
-      response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') { |http| http.request(req) }
+
+      request_uri = http_request.uri
+      response = Net::HTTP.start(
+        request_uri.hostname, request_uri.port, use_ssl: request_uri.scheme == 'https'
+      ) do |http|
+        http.request(http_request)
+      end
+
       unless response.is_a?(Net::HTTPSuccess)
         raise InvalidRequestError, "API returned #{response.code}: #{response.body}"
       end
