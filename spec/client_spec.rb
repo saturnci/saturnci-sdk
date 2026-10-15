@@ -77,6 +77,27 @@ describe SaturnCI::Client do
     end
   end
 
+  describe 'server errors' do
+    it 'succeeds when a server error is followed by a success' do
+      client = SaturnCI::Client.new(double(api_token: 'x'))
+
+      stub_request(:get, 'https://app.saturnci.com/api/v1/test_suite_runs')
+        .to_return({ status: 500 }, { status: 200 })
+
+      expect { client.get('/api/v1/test_suite_runs') }.not_to raise_error
+    end
+
+    it 'raises when the server keeps failing' do
+      client = SaturnCI::Client.new(double(api_token: 'x'))
+
+      stub_request(:get, 'https://app.saturnci.com/api/v1/test_suite_runs')
+        .to_return(status: 500)
+
+      expect { client.get('/api/v1/test_suite_runs') }
+        .to raise_error(SaturnCI::InvalidRequestError, /500/)
+    end
+  end
+
   describe 'authentication header' do
     it 'sends Authorization: Bearer <api_token>' do
       client = SaturnCI::Client.new(double(api_token: 'abc123'))

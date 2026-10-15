@@ -6,6 +6,8 @@ require 'uri'
 
 module SaturnCI
   class APIRequest
+    RETRY_LIMIT = 2
+
     def initialize(request_class, api_token, base_url, path, params = nil)
       @request_class = request_class
       @api_token = api_token
@@ -14,9 +16,13 @@ module SaturnCI
       @params = params
     end
 
-    def response
+    def response(retry_count: 0)
       response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') do |http|
         http.request(net_http_request)
+      end
+
+      if response.is_a?(Net::HTTPServerError) && retry_count < RETRY_LIMIT
+        return self.response(retry_count: retry_count + 1)
       end
 
       unless response.is_a?(Net::HTTPSuccess)
