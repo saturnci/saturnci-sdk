@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
-require 'json'
 require 'net/http'
-require 'uri'
 
 module SaturnCI
   class Client
@@ -23,25 +21,19 @@ module SaturnCI
     end
 
     def get(path)
-      APIRequest.new(Net::HTTP::Get, uri(path), @api_token).response
+      APIRequest.new(Net::HTTP::Get, @api_token, @base_url, path).response
     end
 
     def post(path, params = {})
-      APIRequest.new(Net::HTTP::Post, uri(path), @api_token, params).response
+      APIRequest.new(Net::HTTP::Post, @api_token, @base_url, path, params).response
     end
 
     def patch(path, params = {})
-      APIRequest.new(Net::HTTP::Patch, uri(path), @api_token, params).response
+      APIRequest.new(Net::HTTP::Patch, @api_token, @base_url, path, params).response
     end
 
     def delete(path)
-      APIRequest.new(Net::HTTP::Delete, uri(path), @api_token).response
-    end
-
-    private
-
-    def uri(path)
-      URI("#{@base_url}#{path}")
+      APIRequest.new(Net::HTTP::Delete, @api_token, @base_url, path).response
     end
   end
 end
